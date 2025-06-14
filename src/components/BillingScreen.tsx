@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Plus, Minus, Trash2, CreditCard, Printer, Barcode, Search, Zap } from 'lucide-react';
+import { Plus, Minus, Trash2, CreditCard, Printer, Barcode, Search, Zap, Monitor, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
