@@ -50,6 +50,66 @@ const PREMIUM_FEATURES: PremiumFeature[] = [
     isAddOn: true,
     price: 39,
     enabled: false
+  },
+  // Phase 3A: Financial Analytics
+  {
+    id: 'financial-analytics',
+    name: 'Financial Analytics',
+    description: 'Advanced financial reporting and profit analysis',
+    isAddOn: true,
+    price: 49,
+    enabled: false
+  },
+  {
+    id: 'cost-management',
+    name: 'Cost Management',
+    description: 'Food cost tracking and optimization',
+    isAddOn: true,
+    price: 35,
+    enabled: false
+  },
+  // Phase 3B: Customer Feedback
+  {
+    id: 'customer-feedback',
+    name: 'Customer Feedback System',
+    description: 'Review management and customer satisfaction tracking',
+    isAddOn: true,
+    price: 25,
+    enabled: false
+  },
+  {
+    id: 'review-management',
+    name: 'Review Management',
+    description: 'Automated review monitoring and response system',
+    isAddOn: true,
+    price: 30,
+    enabled: false
+  },
+  // Phase 3C: Marketing Tools
+  {
+    id: 'marketing-campaigns',
+    name: 'Marketing Campaigns',
+    description: 'Email marketing and promotional campaign management',
+    isAddOn: true,
+    price: 40,
+    enabled: false
+  },
+  {
+    id: 'social-media',
+    name: 'Social Media Integration',
+    description: 'Social media management and posting tools',
+    isAddOn: true,
+    price: 35,
+    enabled: false
+  },
+  // Phase 3D: Advanced Reporting
+  {
+    id: 'advanced-reporting',
+    name: 'Advanced Reporting Dashboard',
+    description: 'Executive-level reporting and business intelligence',
+    isAddOn: true,
+    price: 60,
+    enabled: false
   }
 ];
 
@@ -74,6 +134,13 @@ const PREMIUM_PLANS: PremiumPlan[] = [
     price: 199,
     features: ['dashboard', 'billing', 'menu', 'inventory', 'kitchen', 'advanced-analytics', 'multi-store'],
     addOns: ['customer-loyalty', 'ai-recommendations']
+  },
+  {
+    id: 'business-intelligence',
+    name: 'Business Intelligence',
+    price: 299,
+    features: ['dashboard', 'billing', 'menu', 'inventory', 'kitchen', 'advanced-analytics', 'multi-store'],
+    addOns: ['customer-loyalty', 'ai-recommendations', 'financial-analytics', 'cost-management', 'customer-feedback', 'review-management', 'marketing-campaigns', 'social-media', 'advanced-reporting']
   }
 ];
 
@@ -81,7 +148,7 @@ export const usePremiumFeatures = () => {
   // Start with Enterprise plan instead of Basic
   const [currentPlan, setCurrentPlan] = useState<PremiumPlan>(PREMIUM_PLANS[2]); // Enterprise plan
   // Enable all add-ons by default for testing
-  const [enabledAddOns, setEnabledAddOns] = useState<string[]>(['customer-loyalty', 'ai-recommendations']);
+  const [enabledAddOns, setEnabledAddOns] = useState<string[]>(['customer-loyalty', 'ai-recommendations', 'financial-analytics', 'cost-management', 'customer-feedback', 'review-management', 'marketing-campaigns', 'social-media', 'advanced-reporting']);
 
   const isFeatureEnabled = (featureId: string): boolean => {
     return currentPlan.features.includes(featureId) || 

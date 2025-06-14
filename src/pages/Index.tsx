@@ -22,6 +22,10 @@ import ReservationSystem from '../components/ReservationSystem';
 import OnlineOrderingSystem from '../components/OnlineOrderingSystem';
 import AdvancedReservationSystem from '../components/AdvancedReservationSystem';
 import EnhancedOnlineOrdering from '../components/EnhancedOnlineOrdering';
+import FinancialAnalytics from '../components/FinancialAnalytics';
+import CostManagement from '../components/CostManagement';
+import CustomerFeedback from '../components/CustomerFeedback';
+import ReviewManagement from '../components/ReviewManagement';
 
 // Mock user data - will come from authentication later
 const mockUser = {
@@ -49,6 +53,14 @@ const Index = () => {
         return mockUser.role === 'admin' ? <MultiStoreAnalytics /> : <Dashboard />;
       case 'advanced-analytics':
         return <AdvancedAnalytics />;
+      case 'financial-analytics':
+        return <FinancialAnalytics />;
+      case 'cost-management':
+        return <CostManagement />;
+      case 'customer-feedback':
+        return <CustomerFeedback />;
+      case 'review-management':
+        return <ReviewManagement />;
       case 'stores':
         return mockUser.role === 'admin' ? <StoreManagement /> : <Dashboard />;
       case 'menu':
