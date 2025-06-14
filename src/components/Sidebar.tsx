@@ -1,3 +1,4 @@
+
 import { 
   BarChart3, 
   Users, 
@@ -19,9 +20,14 @@ import {
   TrendingUp,
   Brain,
   Clock,
-  Truck
+  Truck,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { usePremiumFeatures } from '@/hooks/usePremiumFeatures';
+import { useState } from 'react';
+import PremiumUpgradeModal from './PremiumUpgradeModal';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -39,17 +45,17 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
   if (role === 'admin') {
     return [
       ...baseItems,
-      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain },
-      { id: 'analytics', label: 'Multi-Store Analytics', icon: BarChart3 },
-      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp },
-      { id: 'stores', label: 'Store Management', icon: Store },
+      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain, premium: 'ai-recommendations' },
+      { id: 'analytics', label: 'Multi-Store Analytics', icon: BarChart3, premium: 'multi-store' },
+      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp, premium: 'advanced-analytics' },
+      { id: 'stores', label: 'Store Management', icon: Store, premium: 'multi-store' },
       { id: 'floorplan', label: 'Floor Plan Management', icon: Grid3X3 },
       { id: 'reservations', label: 'Reservations', icon: Calendar },
       { id: 'online-ordering', label: 'Online Orders', icon: Truck },
       { id: 'menu', label: 'Menu Management', icon: MenuIcon },
       { id: 'inventory', label: 'Inventory Management', icon: Package },
       { id: 'staff', label: 'Staff Management', icon: Users },
-      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
+      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift, premium: 'customer-loyalty' },
       { id: 'settings', label: 'Settings', icon: Settings },
     ];
   }
@@ -57,7 +63,7 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
   if (role === 'manager') {
     return [
       ...baseItems,
-      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain },
+      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain, premium: 'ai-recommendations' },
       { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
       { id: 'billing', label: 'Billing (POS)', icon: Calculator },
       { id: 'kitchen', label: 'Kitchen Display', icon: Monitor },
@@ -66,9 +72,9 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
       { id: 'menu', label: 'Menu Management', icon: MenuIcon },
       { id: 'inventory', label: 'Inventory', icon: Package },
       { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp },
+      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp, premium: 'advanced-analytics' },
       { id: 'staff', label: 'Staff', icon: Users },
-      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
+      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift, premium: 'customer-loyalty' },
       { id: 'settings', label: 'Settings', icon: Settings },
     ];
   }
@@ -82,7 +88,7 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
     { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
     { id: 'reservations', label: 'Reservations', icon: Clock },
     { id: 'online-ordering', label: 'Online Orders', icon: Truck },
-    { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
+    { id: 'loyalty', label: 'Customer Loyalty', icon: Gift, premium: 'customer-loyalty' },
   ];
 };
 
@@ -101,66 +107,107 @@ const Sidebar = ({ isOpen, activeSection, setActiveSection, userRole }: SidebarP
   const menuItems = getMenuItems(userRole);
   const roleInfo = getRoleInfo(userRole);
   const RoleIcon = roleInfo.icon;
+  const { isFeatureEnabled, isFeaturePremium } = usePremiumFeatures();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeFeatureId, setUpgradeFeatureId] = useState<string | undefined>();
+
+  const handleMenuClick = (item: any) => {
+    if (item.premium && !isFeatureEnabled(item.premium)) {
+      setUpgradeFeatureId(item.premium);
+      setShowUpgradeModal(true);
+    } else {
+      setActiveSection(item.id);
+    }
+  };
 
   return (
-    <aside className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-30 ${
-      isOpen ? 'w-64' : 'w-16'
-    }`}>
-      <div className="p-6 border-b border-slate-700">
-        <div className="flex items-center space-x-3">
-          <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">R</span>
-          </div>
-          {isOpen && (
-            <div>
-              <h1 className="text-xl font-bold">RestaurantOS</h1>
-              <p className="text-xs text-slate-400">Management Suite</p>
+    <>
+      <aside className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-30 ${
+        isOpen ? 'w-64' : 'w-16'
+      }`}>
+        <div className="p-6 border-b border-slate-700">
+          <div className="flex items-center space-x-3">
+            <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">R</span>
             </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Role indicator */}
-      {isOpen && (
-        <div className="px-6 py-3 border-b border-slate-700">
-          <div className="flex items-center space-x-2">
-            <RoleIcon className="h-4 w-4" />
-            <span className="text-sm text-slate-300">{roleInfo.label}</span>
+            {isOpen && (
+              <div>
+                <h1 className="text-xl font-bold">RestaurantOS</h1>
+                <p className="text-xs text-slate-400">Management Suite</p>
+              </div>
+            )}
           </div>
         </div>
-      )}
-      
-      <nav className="mt-6">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Button
-              key={item.id}
-              variant="ghost"
-              className={`w-full justify-start px-6 py-3 text-left hover:bg-slate-800 transition-colors ${
-                activeSection === item.id ? 'bg-slate-800 border-r-2 border-blue-500' : ''
-              }`}
-              onClick={() => setActiveSection(item.id)}
-            >
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              {isOpen && <span className="ml-3">{item.label}</span>}
-            </Button>
-          );
-        })}
-      </nav>
-      
-      {isOpen && userRole !== 'cashier' && (
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="bg-blue-600 rounded-lg p-4 text-center">
-            <h3 className="font-semibold text-sm mb-1">Upgrade to Pro</h3>
-            <p className="text-xs text-blue-100 mb-3">Get advanced analytics and more features</p>
-            <Button size="sm" className="bg-white text-blue-600 hover:bg-blue-50 w-full">
-              Upgrade Now
-            </Button>
+        
+        {/* Role indicator */}
+        {isOpen && (
+          <div className="px-6 py-3 border-b border-slate-700">
+            <div className="flex items-center space-x-2">
+              <RoleIcon className="h-4 w-4" />
+              <span className="text-sm text-slate-300">{roleInfo.label}</span>
+            </div>
           </div>
-        </div>
-      )}
-    </aside>
+        )}
+        
+        <nav className="mt-6">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isPremium = item.premium && !isFeatureEnabled(item.premium);
+            
+            return (
+              <Button
+                key={item.id}
+                variant="ghost"
+                className={`w-full justify-start px-6 py-3 text-left hover:bg-slate-800 transition-colors ${
+                  activeSection === item.id ? 'bg-slate-800 border-r-2 border-blue-500' : ''
+                } ${isPremium ? 'opacity-75' : ''}`}
+                onClick={() => handleMenuClick(item)}
+              >
+                <div className="flex items-center w-full">
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {isOpen && (
+                    <>
+                      <span className="ml-3 flex-1">{item.label}</span>
+                      {isPremium && (
+                        <Badge variant="secondary" className="ml-2 text-xs bg-yellow-600 text-white">
+                          <Crown className="h-3 w-3 mr-1" />
+                          Pro
+                        </Badge>
+                      )}
+                    </>
+                  )}
+                </div>
+              </Button>
+            );
+          })}
+        </nav>
+        
+        {isOpen && userRole !== 'cashier' && (
+          <div className="absolute bottom-6 left-6 right-6">
+            <div className="bg-blue-600 rounded-lg p-4 text-center">
+              <h3 className="font-semibold text-sm mb-1">Upgrade to Pro</h3>
+              <p className="text-xs text-blue-100 mb-3">Get advanced analytics and more features</p>
+              <Button 
+                size="sm" 
+                className="bg-white text-blue-600 hover:bg-blue-50 w-full"
+                onClick={() => setShowUpgradeModal(true)}
+              >
+                Upgrade Now
+              </Button>
+            </div>
+          </div>
+        )}
+      </aside>
+
+      <PremiumUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => {
+          setShowUpgradeModal(false);
+          setUpgradeFeatureId(undefined);
+        }}
+        featureId={upgradeFeatureId}
+      />
+    </>
   );
 };
 

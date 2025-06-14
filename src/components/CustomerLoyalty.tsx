@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Star, Gift, Users, TrendingUp, Award, CreditCard, Phone, Mail } from 'lucide-react';
+import { Star, Gift, Users, TrendingUp, Award, CreditCard, Phone, Mail, Crown, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { usePremiumFeatures } from '@/hooks/usePremiumFeatures';
+import PremiumUpgradeModal from './PremiumUpgradeModal';
 
 interface Customer {
   id: string;
@@ -117,6 +118,81 @@ const CustomerLoyalty = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  const { isFeatureEnabled } = usePremiumFeatures();
+  const hasLoyaltyAccess = isFeatureEnabled('customer-loyalty');
+
+  // If premium feature is not enabled, show upgrade prompt
+  if (!hasLoyaltyAccess) {
+    return (
+      <>
+        <div className="p-6 space-y-6">
+          <div className="text-center py-16">
+            <div className="mx-auto w-24 h-24 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mb-6">
+              <Lock className="h-12 w-12 text-purple-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Customer Loyalty Program</h1>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Unlock advanced customer loyalty and rewards management with our premium add-on
+            </p>
+            
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-8 max-w-2xl mx-auto mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <Crown className="h-8 w-8 text-purple-600 mr-3" />
+                <Badge className="bg-purple-600 text-white px-4 py-2">Premium Add-on</Badge>
+              </div>
+              
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                What's included in Customer Loyalty:
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                {[
+                  'Advanced customer tracking',
+                  'Points & rewards system',
+                  'Tier-based benefits',
+                  'Customer analytics',
+                  'Automated campaigns',
+                  'Custom loyalty rules',
+                  'Birthday & anniversary rewards',
+                  'Integration with POS system'
+                ].map((feature, index) => (
+                  <div key={index} className="flex items-center">
+                    <Star className="h-4 w-4 text-purple-600 mr-2" />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-4 bg-white rounded-lg border-2 border-purple-200">
+                <div className="text-center">
+                  <span className="text-3xl font-bold text-purple-600">$29</span>
+                  <span className="text-gray-600">/month</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Add to any plan</p>
+              </div>
+            </div>
+            
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              onClick={() => setShowUpgradeModal(true)}
+            >
+              <Crown className="h-5 w-5 mr-2" />
+              Upgrade to Access Customer Loyalty
+            </Button>
+          </div>
+        </div>
+        
+        <PremiumUpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          featureId="customer-loyalty"
+        />
+      </>
+    );
+  }
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,9 +238,15 @@ const CustomerLoyalty = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Customer Loyalty Program</h1>
-          <p className="text-gray-600">Manage your customer rewards and loyalty program</p>
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <Gift className="h-8 w-8 text-purple-600" />
+            <Badge className="bg-purple-600 text-white">Premium Add-on</Badge>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Customer Loyalty Program</h1>
+            <p className="text-gray-600">Manage your customer rewards and loyalty program</p>
+          </div>
         </div>
         <Button onClick={() => setIsAddCustomerOpen(true)}>
           <Users className="h-4 w-4 mr-2" />
