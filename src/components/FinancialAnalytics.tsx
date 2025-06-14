@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, PieChart as PieChartIcon, BarChart3, Download, Calendar } from 'lucide-react';
+import ExportDialog from './ExportDialog';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, profit: 12000, expenses: 33000 },
@@ -41,6 +42,8 @@ const chartConfig = {
 };
 
 const FinancialAnalytics = () => {
+  const [showExportDialog, setShowExportDialog] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -60,7 +63,7 @@ const FinancialAnalytics = () => {
               <SelectItem value="year">This Year</SelectItem>
             </SelectContent>
           </Select>
-          <Button>
+          <Button onClick={() => setShowExportDialog(true)}>
             <Download className="h-4 w-4 mr-2" />
             Export Report
           </Button>
@@ -246,6 +249,14 @@ const FinancialAnalytics = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <ExportDialog
+        isOpen={showExportDialog}
+        onClose={() => setShowExportDialog(false)}
+        revenueData={revenueData}
+        expenseData={expenseBreakdown}
+        profitMarginData={profitMarginData}
+      />
     </div>
   );
 };
