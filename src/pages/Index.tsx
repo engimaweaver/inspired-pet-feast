@@ -20,6 +20,8 @@ import QuickAddButton from '../components/QuickAddButton';
 import AIRecommendationEngine from '../components/AIRecommendationEngine';
 import ReservationSystem from '../components/ReservationSystem';
 import OnlineOrderingSystem from '../components/OnlineOrderingSystem';
+import AdvancedReservationSystem from '../components/AdvancedReservationSystem';
+import EnhancedOnlineOrdering from '../components/EnhancedOnlineOrdering';
 
 // Mock user data - will come from authentication later
 const mockUser = {
@@ -40,9 +42,9 @@ const Index = () => {
       case 'ai-recommendations':
         return <AIRecommendationEngine />;
       case 'reservations':
-        return <ReservationSystem />;
+        return <AdvancedReservationSystem />;
       case 'online-ordering':
-        return <OnlineOrderingSystem />;
+        return <EnhancedOnlineOrdering />;
       case 'analytics':
         return mockUser.role === 'admin' ? <MultiStoreAnalytics /> : <Dashboard />;
       case 'advanced-analytics':
