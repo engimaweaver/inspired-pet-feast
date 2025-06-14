@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Plus, Minus, Trash2, CreditCard, Printer, Barcode, Search } from 'lucide-react';
+import { Plus, Minus, Trash2, CreditCard, Printer, Barcode, Search, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import QuickAddModal from './QuickAddModal';
 
 interface OrderItem {
   id: string;
@@ -30,6 +30,7 @@ const BillingScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [barcodeInput, setBarcodeInput] = useState('');
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [quickAddModalOpen, setQuickAddModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi'>('cash');
   const [amountReceived, setAmountReceived] = useState('');
   const { toast } = useToast();
@@ -189,7 +190,7 @@ const BillingScreen = () => {
     <div className="flex h-full gap-6">
       {/* Left Panel - Menu Items */}
       <div className="flex-1 space-y-4">
-        {/* Search and Barcode */}
+        {/* Search, Barcode, and Quick Add */}
         <div className="flex gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -211,6 +212,14 @@ const BillingScreen = () => {
               <Barcode className="h-4 w-4" />
             </Button>
           </form>
+          <Button
+            onClick={() => setQuickAddModalOpen(true)}
+            variant="outline"
+            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            Quick Add
+          </Button>
         </div>
 
         {/* Category Filters */}
@@ -411,6 +420,14 @@ const BillingScreen = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Add Modal */}
+      <QuickAddModal
+        isOpen={quickAddModalOpen}
+        onClose={() => setQuickAddModalOpen(false)}
+        menuItems={menuItems}
+        onAddItem={addToOrder}
+      />
     </div>
   );
 };

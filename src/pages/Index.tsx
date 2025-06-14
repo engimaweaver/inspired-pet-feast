@@ -6,6 +6,7 @@ import Dashboard from '../components/Dashboard';
 import MenuManagement from '../components/MenuManagement';
 import StaffManagement from '../components/StaffManagement';
 import BillingScreen from '../components/BillingScreen';
+import QuickAddButton from '../components/QuickAddButton';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -26,6 +27,10 @@ const Index = () => {
     }
   };
 
+  const handleQuickBill = () => {
+    setActiveSection('billing');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
       <Sidebar 
@@ -42,6 +47,11 @@ const Index = () => {
           {renderContent()}
         </main>
       </div>
+      
+      {/* Quick Add Button - only show when not on billing screen */}
+      {activeSection !== 'billing' && (
+        <QuickAddButton onClick={handleQuickBill} />
+      )}
     </div>
   );
 };
