@@ -1,4 +1,3 @@
-
 import { 
   BarChart3, 
   Users, 
@@ -13,7 +12,11 @@ import {
   Store,
   Crown,
   Shield,
-  UserCheck
+  UserCheck,
+  Package,
+  Monitor,
+  Gift,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -34,10 +37,13 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
     return [
       ...baseItems,
       { id: 'analytics', label: 'Multi-Store Analytics', icon: BarChart3 },
+      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp },
       { id: 'stores', label: 'Store Management', icon: Store },
       { id: 'floorplan', label: 'Floor Plan Management', icon: Grid3X3 },
       { id: 'menu', label: 'Menu Management', icon: MenuIcon },
+      { id: 'inventory', label: 'Inventory Management', icon: Package },
       { id: 'staff', label: 'Staff Management', icon: Users },
+      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
       { id: 'settings', label: 'Settings', icon: Settings },
     ];
   }
@@ -47,9 +53,13 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
       ...baseItems,
       { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
       { id: 'billing', label: 'Billing (POS)', icon: Calculator },
+      { id: 'kitchen', label: 'Kitchen Display', icon: Monitor },
       { id: 'menu', label: 'Menu Management', icon: MenuIcon },
+      { id: 'inventory', label: 'Inventory', icon: Package },
       { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp },
       { id: 'staff', label: 'Staff', icon: Users },
+      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
       { id: 'bookings', label: 'Reservations', icon: Calendar },
       { id: 'settings', label: 'Settings', icon: Settings },
     ];
@@ -59,8 +69,10 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
   return [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'billing', label: 'POS System', icon: Calculator },
+    { id: 'kitchen', label: 'Kitchen Display', icon: Monitor },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
+    { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
   ];
 };
 

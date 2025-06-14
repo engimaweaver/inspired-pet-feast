@@ -6,12 +6,16 @@ import Sidebar from '../components/Sidebar';
 import Dashboard from '../components/Dashboard';
 import RoleBasedDashboard from '../components/RoleBasedDashboard';
 import MultiStoreAnalytics from '../components/MultiStoreAnalytics';
+import AdvancedAnalytics from '../components/AdvancedAnalytics';
 import StoreManagement from '../components/StoreManagement';
 import MenuManagement from '../components/MenuManagement';
 import StaffManagement from '../components/StaffManagement';
 import BillingScreen from '../components/BillingScreen';
 import FloorPlanScreen from '../components/FloorPlanScreen';
 import AdminFloorPlanScreen from '../components/AdminFloorPlanScreen';
+import InventoryManagement from '../components/InventoryManagement';
+import KitchenDisplaySystem from '../components/KitchenDisplaySystem';
+import CustomerLoyalty from '../components/CustomerLoyalty';
 import QuickAddButton from '../components/QuickAddButton';
 
 // Mock user data - will come from authentication later
@@ -32,10 +36,18 @@ const Index = () => {
         return <RoleBasedDashboard currentUser={mockUser} />;
       case 'analytics':
         return mockUser.role === 'admin' ? <MultiStoreAnalytics /> : <Dashboard />;
+      case 'advanced-analytics':
+        return <AdvancedAnalytics />;
       case 'stores':
         return mockUser.role === 'admin' ? <StoreManagement /> : <Dashboard />;
       case 'menu':
         return <MenuManagement />;
+      case 'inventory':
+        return <InventoryManagement />;
+      case 'kitchen':
+        return <KitchenDisplaySystem />;
+      case 'loyalty':
+        return <CustomerLoyalty />;
       case 'staff':
         return <StaffManagement />;
       case 'billing':
