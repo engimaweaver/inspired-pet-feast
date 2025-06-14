@@ -1,138 +1,14 @@
-import { 
-  BarChart3, 
-  Users, 
-  Menu as MenuIcon, 
-  ShoppingCart, 
-  Settings,
-  Home,
-  Calendar,
-  DollarSign,
-  Calculator,
-  Grid3X3,
-  Store,
-  Crown,
-  Shield,
-  UserCheck,
-  Package,
-  Monitor,
-  Gift,
-  TrendingUp,
-  Brain,
-  Clock,
-  Truck,
-  Lock,
-  PieChart,
-  CreditCard,
-  MessageCircle,
-  Star,
-  Mail,
-  Share2,
-  FileText
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { usePremiumFeatures } from '@/hooks/usePremiumFeatures';
+
 import { useState } from 'react';
+import SidebarHeader from './SidebarHeader';
+import SidebarNavigation from './SidebarNavigation';
+import SidebarUpgradePrompt from './SidebarUpgradePrompt';
 import PremiumUpgradeModal from './PremiumUpgradeModal';
-
-interface SidebarProps {
-  isOpen: boolean;
-  activeSection: string;
-  setActiveSection: (section: string) => void;
-  userRole: 'admin' | 'manager' | 'cashier';
-}
-
-interface MenuItem {
-  id: string;
-  label: string;
-  icon: React.ComponentType<any>;
-  premium?: string;
-}
-
-const getMenuItems = (role: 'admin' | 'manager' | 'cashier'): MenuItem[] => {
-  const baseItems: MenuItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart },
-  ];
-
-  if (role === 'admin') {
-    return [
-      ...baseItems,
-      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain, premium: 'ai-recommendations' },
-      { id: 'analytics', label: 'Multi-Store Analytics', icon: BarChart3, premium: 'multi-store' },
-      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp, premium: 'advanced-analytics' },
-      { id: 'financial-analytics', label: 'Financial Analytics', icon: PieChart, premium: 'financial-analytics' },
-      { id: 'advanced-reporting', label: 'Executive Reports', icon: FileText, premium: 'advanced-reporting' },
-      { id: 'stores', label: 'Store Management', icon: Store, premium: 'multi-store' },
-      { id: 'floorplan', label: 'Floor Plan Management', icon: Grid3X3 },
-      { id: 'reservations', label: 'Reservations', icon: Calendar },
-      { id: 'online-ordering', label: 'Online Orders', icon: Truck },
-      { id: 'menu', label: 'Menu Management', icon: MenuIcon },
-      { id: 'inventory', label: 'Inventory Management', icon: Package },
-      { id: 'cost-management', label: 'Cost Management', icon: CreditCard, premium: 'cost-management' },
-      { id: 'staff', label: 'Staff Management', icon: Users },
-      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift, premium: 'customer-loyalty' },
-      { id: 'customer-feedback', label: 'Customer Feedback', icon: MessageCircle, premium: 'customer-feedback' },
-      { id: 'review-management', label: 'Review Management', icon: Star, premium: 'review-management' },
-      { id: 'marketing-campaigns', label: 'Marketing Campaigns', icon: Mail, premium: 'marketing-campaigns' },
-      { id: 'social-media', label: 'Social Media', icon: Share2, premium: 'social-media' },
-      { id: 'settings', label: 'Settings', icon: Settings },
-    ];
-  }
-
-  if (role === 'manager') {
-    return [
-      ...baseItems,
-      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain, premium: 'ai-recommendations' },
-      { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
-      { id: 'billing', label: 'Billing (POS)', icon: Calculator },
-      { id: 'kitchen', label: 'Kitchen Display', icon: Monitor },
-      { id: 'reservations', label: 'Reservations', icon: Calendar },
-      { id: 'online-ordering', label: 'Online Orders', icon: Truck },
-      { id: 'menu', label: 'Menu Management', icon: MenuIcon },
-      { id: 'inventory', label: 'Inventory', icon: Package },
-      { id: 'cost-management', label: 'Cost Management', icon: CreditCard, premium: 'cost-management' },
-      { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-      { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp, premium: 'advanced-analytics' },
-      { id: 'financial-analytics', label: 'Financial Reports', icon: PieChart, premium: 'financial-analytics' },
-      { id: 'staff', label: 'Staff', icon: Users },
-      { id: 'loyalty', label: 'Customer Loyalty', icon: Gift, premium: 'customer-loyalty' },
-      { id: 'customer-feedback', label: 'Customer Feedback', icon: MessageCircle, premium: 'customer-feedback' },
-      { id: 'marketing-campaigns', label: 'Marketing', icon: Mail, premium: 'marketing-campaigns' },
-      { id: 'settings', label: 'Settings', icon: Settings },
-    ];
-  }
-
-  // Cashier role
-  return [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'billing', label: 'POS System', icon: Calculator },
-    { id: 'kitchen', label: 'Kitchen Display', icon: Monitor },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart },
-    { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
-    { id: 'reservations', label: 'Reservations', icon: Clock },
-    { id: 'online-ordering', label: 'Online Orders', icon: Truck },
-    { id: 'loyalty', label: 'Customer Loyalty', icon: Gift, premium: 'customer-loyalty' },
-    { id: 'customer-feedback', label: 'Customer Feedback', icon: MessageCircle, premium: 'customer-feedback' },
-  ];
-};
-
-const getRoleInfo = (role: 'admin' | 'manager' | 'cashier') => {
-  switch (role) {
-    case 'admin':
-      return { icon: Crown, color: 'bg-purple-600', label: 'Chain Admin' };
-    case 'manager':
-      return { icon: Shield, color: 'bg-blue-600', label: 'Store Manager' };
-    case 'cashier':
-      return { icon: UserCheck, color: 'bg-green-600', label: 'Cashier' };
-  }
-};
+import { usePremiumFeatures } from '@/hooks/usePremiumFeatures';
+import { SidebarProps, MenuItem } from '@/types/sidebar';
 
 const Sidebar = ({ isOpen, activeSection, setActiveSection, userRole }: SidebarProps) => {
-  const menuItems = getMenuItems(userRole);
-  const roleInfo = getRoleInfo(userRole);
-  const RoleIcon = roleInfo.icon;
-  const { isFeatureEnabled, isFeaturePremium } = usePremiumFeatures();
+  const { isFeatureEnabled } = usePremiumFeatures();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeFeatureId, setUpgradeFeatureId] = useState<string | undefined>();
 
@@ -145,91 +21,39 @@ const Sidebar = ({ isOpen, activeSection, setActiveSection, userRole }: SidebarP
     }
   };
 
+  const handleUpgradeClick = () => {
+    setShowUpgradeModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowUpgradeModal(false);
+    setUpgradeFeatureId(undefined);
+  };
+
   return (
     <>
       <aside className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-30 ${
         isOpen ? 'w-64' : 'w-16'
       }`}>
-        <div className="p-6 border-b border-slate-700">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">R</span>
-            </div>
-            {isOpen && (
-              <div>
-                <h1 className="text-xl font-bold">RestaurantOS</h1>
-                <p className="text-xs text-slate-400">Management Suite</p>
-              </div>
-            )}
-          </div>
-        </div>
+        <SidebarHeader isOpen={isOpen} userRole={userRole} />
         
-        {/* Role indicator */}
-        {isOpen && (
-          <div className="px-6 py-3 border-b border-slate-700">
-            <div className="flex items-center space-x-2">
-              <RoleIcon className="h-4 w-4" />
-              <span className="text-sm text-slate-300">{roleInfo.label}</span>
-            </div>
-          </div>
-        )}
+        <SidebarNavigation 
+          isOpen={isOpen}
+          activeSection={activeSection}
+          userRole={userRole}
+          onMenuClick={handleMenuClick}
+        />
         
-        <nav className="mt-6">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isPremium = item.premium && !isFeatureEnabled(item.premium);
-            
-            return (
-              <Button
-                key={item.id}
-                variant="ghost"
-                className={`w-full justify-start px-6 py-3 text-left hover:bg-slate-800 transition-colors ${
-                  activeSection === item.id ? 'bg-slate-800 border-r-2 border-blue-500' : ''
-                } ${isPremium ? 'opacity-75' : ''}`}
-                onClick={() => handleMenuClick(item)}
-              >
-                <div className="flex items-center w-full">
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  {isOpen && (
-                    <>
-                      <span className="ml-3 flex-1">{item.label}</span>
-                      {isPremium && (
-                        <Badge variant="secondary" className="ml-2 text-xs bg-yellow-600 text-white">
-                          <Crown className="h-3 w-3 mr-1" />
-                          Pro
-                        </Badge>
-                      )}
-                    </>
-                  )}
-                </div>
-              </Button>
-            );
-          })}
-        </nav>
-        
-        {isOpen && userRole !== 'cashier' && (
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="bg-blue-600 rounded-lg p-4 text-center">
-              <h3 className="font-semibold text-sm mb-1">Upgrade to Pro</h3>
-              <p className="text-xs text-blue-100 mb-3">Get advanced analytics and more features</p>
-              <Button 
-                size="sm" 
-                className="bg-white text-blue-600 hover:bg-blue-50 w-full"
-                onClick={() => setShowUpgradeModal(true)}
-              >
-                Upgrade Now
-              </Button>
-            </div>
-          </div>
-        )}
+        <SidebarUpgradePrompt 
+          isOpen={isOpen}
+          userRole={userRole}
+          onUpgradeClick={handleUpgradeClick}
+        />
       </aside>
 
       <PremiumUpgradeModal
         isOpen={showUpgradeModal}
-        onClose={() => {
-          setShowUpgradeModal(false);
-          setUpgradeFeatureId(undefined);
-        }}
+        onClose={handleCloseModal}
         featureId={upgradeFeatureId}
       />
     </>
