@@ -6,6 +6,7 @@ import Dashboard from '../components/Dashboard';
 import MenuManagement from '../components/MenuManagement';
 import StaffManagement from '../components/StaffManagement';
 import BillingScreen from '../components/BillingScreen';
+import FloorPlanScreen from '../components/FloorPlanScreen';
 import QuickAddButton from '../components/QuickAddButton';
 
 const Index = () => {
@@ -22,6 +23,8 @@ const Index = () => {
         return <StaffManagement />;
       case 'billing':
         return <BillingScreen />;
+      case 'floorplan':
+        return <FloorPlanScreen />;
       default:
         return <Dashboard />;
     }
@@ -48,8 +51,8 @@ const Index = () => {
         </main>
       </div>
       
-      {/* Quick Add Button - only show when not on billing screen */}
-      {activeSection !== 'billing' && (
+      {/* Quick Add Button - only show when not on billing or floorplan screen */}
+      {activeSection !== 'billing' && activeSection !== 'floorplan' && (
         <QuickAddButton onClick={handleQuickBill} />
       )}
     </div>
