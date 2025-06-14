@@ -32,7 +32,7 @@ const Sidebar = ({ isOpen, activeSection, setActiveSection, userRole }: SidebarP
 
   return (
     <>
-      <aside className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-30 ${
+      <aside className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-30 flex flex-col ${
         isOpen ? 'w-64' : 'w-16'
       }`}>
         <SidebarHeader isOpen={isOpen} userRole={userRole} />
