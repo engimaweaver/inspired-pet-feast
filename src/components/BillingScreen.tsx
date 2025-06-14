@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import QuickAddModal from './QuickAddModal';
+import TouchBillingScreen from './TouchBillingScreen';
 
 interface OrderItem {
   id: string;
@@ -33,6 +34,7 @@ const BillingScreen = () => {
   const [quickAddModalOpen, setQuickAddModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi'>('cash');
   const [amountReceived, setAmountReceived] = useState('');
+  const [interfaceMode, setInterfaceMode] = useState<'desktop' | 'touch'>('desktop');
   const { toast } = useToast();
 
   // Sample menu items
@@ -186,8 +188,39 @@ const BillingScreen = () => {
     });
   };
 
+  if (interfaceMode === 'touch') {
+    return (
+      <div className="h-full">
+        <div className="flex justify-between items-center p-4 bg-white border-b">
+          <h1 className="text-xl font-bold">Touch Billing Interface</h1>
+          <Button
+            variant="outline"
+            onClick={() => setInterfaceMode('desktop')}
+            className="flex items-center gap-2"
+          >
+            <Monitor className="h-4 w-4" />
+            Switch to Desktop
+          </Button>
+        </div>
+        <TouchBillingScreen />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-full gap-6">
+    <div className="h-full">
+      <div className="flex justify-between items-center p-4 bg-white border-b">
+        <h1 className="text-xl font-bold">Desktop Billing Interface</h1>
+        <Button
+          variant="outline"
+          onClick={() => setInterfaceMode('touch')}
+          className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+        >
+          <Smartphone className="h-4 w-4" />
+          Switch to Touch Interface
+        </Button>
+      </div>
+      
       {/* Left Panel - Menu Items */}
       <div className="flex-1 space-y-4">
         {/* Search, Barcode, and Quick Add */}
