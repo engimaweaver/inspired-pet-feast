@@ -36,8 +36,15 @@ interface SidebarProps {
   userRole: 'admin' | 'manager' | 'cashier';
 }
 
-const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
-  const baseItems = [
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType<any>;
+  premium?: string;
+}
+
+const getMenuItems = (role: 'admin' | 'manager' | 'cashier'): MenuItem[] => {
+  const baseItems: MenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
   ];
@@ -111,7 +118,7 @@ const Sidebar = ({ isOpen, activeSection, setActiveSection, userRole }: SidebarP
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeFeatureId, setUpgradeFeatureId] = useState<string | undefined>();
 
-  const handleMenuClick = (item: any) => {
+  const handleMenuClick = (item: MenuItem) => {
     if (item.premium && !isFeatureEnabled(item.premium)) {
       setUpgradeFeatureId(item.premium);
       setShowUpgradeModal(true);
