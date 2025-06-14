@@ -7,7 +7,8 @@ import {
   Settings,
   Home,
   Calendar,
-  DollarSign
+  DollarSign,
+  Calculator
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -20,6 +21,7 @@ interface SidebarProps {
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
   { id: 'orders', label: 'Orders', icon: ShoppingCart },
+  { id: 'billing', label: 'Billing (POS)', icon: Calculator },
   { id: 'menu', label: 'Menu Management', icon: MenuIcon },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'staff', label: 'Staff', icon: Users },

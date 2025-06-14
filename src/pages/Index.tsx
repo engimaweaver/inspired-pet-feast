@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import Dashboard from '../components/Dashboard';
 import MenuManagement from '../components/MenuManagement';
 import StaffManagement from '../components/StaffManagement';
+import BillingScreen from '../components/BillingScreen';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -18,6 +19,8 @@ const Index = () => {
         return <MenuManagement />;
       case 'staff':
         return <StaffManagement />;
+      case 'billing':
+        return <BillingScreen />;
       default:
         return <Dashboard />;
     }
