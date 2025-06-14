@@ -35,6 +35,7 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
       ...baseItems,
       { id: 'analytics', label: 'Multi-Store Analytics', icon: BarChart3 },
       { id: 'stores', label: 'Store Management', icon: Store },
+      { id: 'floorplan', label: 'Floor Plan Management', icon: Grid3X3 },
       { id: 'menu', label: 'Menu Management', icon: MenuIcon },
       { id: 'staff', label: 'Staff Management', icon: Users },
       { id: 'settings', label: 'Settings', icon: Settings },

@@ -11,6 +11,7 @@ import MenuManagement from '../components/MenuManagement';
 import StaffManagement from '../components/StaffManagement';
 import BillingScreen from '../components/BillingScreen';
 import FloorPlanScreen from '../components/FloorPlanScreen';
+import AdminFloorPlanScreen from '../components/AdminFloorPlanScreen';
 import QuickAddButton from '../components/QuickAddButton';
 
 // Mock user data - will come from authentication later
@@ -40,7 +41,7 @@ const Index = () => {
       case 'billing':
         return <BillingScreen />;
       case 'floorplan':
-        return <FloorPlanScreen />;
+        return mockUser.role === 'admin' ? <AdminFloorPlanScreen /> : <FloorPlanScreen />;
       default:
         return <RoleBasedDashboard currentUser={mockUser} />;
     }
