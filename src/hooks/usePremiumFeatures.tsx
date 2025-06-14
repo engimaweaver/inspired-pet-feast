@@ -78,8 +78,10 @@ const PREMIUM_PLANS: PremiumPlan[] = [
 ];
 
 export const usePremiumFeatures = () => {
-  const [currentPlan, setCurrentPlan] = useState<PremiumPlan>(PREMIUM_PLANS[0]); // Start with basic
-  const [enabledAddOns, setEnabledAddOns] = useState<string[]>([]);
+  // Start with Enterprise plan instead of Basic
+  const [currentPlan, setCurrentPlan] = useState<PremiumPlan>(PREMIUM_PLANS[2]); // Enterprise plan
+  // Enable all add-ons by default for testing
+  const [enabledAddOns, setEnabledAddOns] = useState<string[]>(['customer-loyalty', 'ai-recommendations']);
 
   const isFeatureEnabled = (featureId: string): boolean => {
     return currentPlan.features.includes(featureId) || 
