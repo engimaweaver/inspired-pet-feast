@@ -17,6 +17,9 @@ import InventoryManagement from '../components/InventoryManagement';
 import KitchenDisplaySystem from '../components/KitchenDisplaySystem';
 import CustomerLoyalty from '../components/CustomerLoyalty';
 import QuickAddButton from '../components/QuickAddButton';
+import AIRecommendationEngine from '../components/AIRecommendationEngine';
+import ReservationSystem from '../components/ReservationSystem';
+import OnlineOrderingSystem from '../components/OnlineOrderingSystem';
 
 // Mock user data - will come from authentication later
 const mockUser = {
@@ -34,6 +37,12 @@ const Index = () => {
     switch (activeSection) {
       case 'dashboard':
         return <RoleBasedDashboard currentUser={mockUser} />;
+      case 'ai-recommendations':
+        return <AIRecommendationEngine />;
+      case 'reservations':
+        return <ReservationSystem />;
+      case 'online-ordering':
+        return <OnlineOrderingSystem />;
       case 'analytics':
         return mockUser.role === 'admin' ? <MultiStoreAnalytics /> : <Dashboard />;
       case 'advanced-analytics':

@@ -16,7 +16,10 @@ import {
   Package,
   Monitor,
   Gift,
-  TrendingUp
+  TrendingUp,
+  Brain,
+  Clock,
+  Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -36,10 +39,13 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
   if (role === 'admin') {
     return [
       ...baseItems,
+      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain },
       { id: 'analytics', label: 'Multi-Store Analytics', icon: BarChart3 },
       { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp },
       { id: 'stores', label: 'Store Management', icon: Store },
       { id: 'floorplan', label: 'Floor Plan Management', icon: Grid3X3 },
+      { id: 'reservations', label: 'Reservations', icon: Calendar },
+      { id: 'online-ordering', label: 'Online Orders', icon: Truck },
       { id: 'menu', label: 'Menu Management', icon: MenuIcon },
       { id: 'inventory', label: 'Inventory Management', icon: Package },
       { id: 'staff', label: 'Staff Management', icon: Users },
@@ -51,16 +57,18 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
   if (role === 'manager') {
     return [
       ...baseItems,
+      { id: 'ai-recommendations', label: 'AI Recommendations', icon: Brain },
       { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
       { id: 'billing', label: 'Billing (POS)', icon: Calculator },
       { id: 'kitchen', label: 'Kitchen Display', icon: Monitor },
+      { id: 'reservations', label: 'Reservations', icon: Calendar },
+      { id: 'online-ordering', label: 'Online Orders', icon: Truck },
       { id: 'menu', label: 'Menu Management', icon: MenuIcon },
       { id: 'inventory', label: 'Inventory', icon: Package },
       { id: 'analytics', label: 'Analytics', icon: BarChart3 },
       { id: 'advanced-analytics', label: 'Advanced Analytics', icon: TrendingUp },
       { id: 'staff', label: 'Staff', icon: Users },
       { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
-      { id: 'bookings', label: 'Reservations', icon: Calendar },
       { id: 'settings', label: 'Settings', icon: Settings },
     ];
   }
@@ -72,6 +80,8 @@ const getMenuItems = (role: 'admin' | 'manager' | 'cashier') => {
     { id: 'kitchen', label: 'Kitchen Display', icon: Monitor },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'floorplan', label: 'Floor Plan', icon: Grid3X3 },
+    { id: 'reservations', label: 'Reservations', icon: Clock },
+    { id: 'online-ordering', label: 'Online Orders', icon: Truck },
     { id: 'loyalty', label: 'Customer Loyalty', icon: Gift },
   ];
 };
