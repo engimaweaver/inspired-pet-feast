@@ -26,6 +26,20 @@ export const ActionButtonGroup = ({
   className = '',
 }: ActionButtonGroupProps) => {
   const orientationClasses = orientation === 'horizontal' ? 'flex gap-2' : 'flex flex-col gap-2';
+  
+  // Map ActionButtonGroup sizes to Button component sizes
+  const getButtonSize = (size: 'sm' | 'md' | 'lg') => {
+    switch (size) {
+      case 'sm':
+        return 'sm';
+      case 'md':
+        return 'default';
+      case 'lg':
+        return 'lg';
+      default:
+        return 'default';
+    }
+  };
 
   return (
     <div className={`${orientationClasses} ${className}`}>
@@ -33,7 +47,7 @@ export const ActionButtonGroup = ({
         <Button
           key={index}
           variant={button.variant || 'default'}
-          size={size}
+          size={getButtonSize(size)}
           onClick={button.onClick}
           disabled={button.disabled || button.loading}
           className="flex items-center gap-2"
