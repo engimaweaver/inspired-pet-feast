@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Header from '../components/Header';
 import RoleBasedHeader from '../components/RoleBasedHeader';
@@ -26,6 +25,7 @@ import FinancialAnalytics from '../components/FinancialAnalytics';
 import CostManagement from '../components/CostManagement';
 import CustomerFeedback from '../components/CustomerFeedback';
 import ReviewManagement from '../components/ReviewManagement';
+import HardwareIntegrationPanel from '../components/HardwareIntegrationPanel';
 
 // Mock user data - will come from authentication later
 const mockUser = {
@@ -77,6 +77,8 @@ const Index = () => {
         return <BillingScreen />;
       case 'floorplan':
         return mockUser.role === 'admin' ? <AdminFloorPlanScreen /> : <FloorPlanScreen />;
+      case 'hardware':
+        return <HardwareIntegrationPanel />;
       default:
         return <RoleBasedDashboard currentUser={mockUser} />;
     }
