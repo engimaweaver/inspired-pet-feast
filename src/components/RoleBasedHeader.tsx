@@ -3,6 +3,7 @@ import { Bell, Search, User, Menu, Shield, UserCheck, Crown } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import LanguageSettingsDialog from './LanguageSettingsDialog';
 
 interface User {
   id: string;
@@ -63,6 +64,8 @@ const RoleBasedHeader = ({ toggleSidebar, sidebarOpen, currentUser }: RoleBasedH
       </div>
       
       <div className="flex items-center space-x-4">
+        <LanguageSettingsDialog />
+        
         <Button variant="ghost" size="sm" className="relative p-2">
           <Bell className="h-5 w-5 text-gray-600" />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">

@@ -83,28 +83,28 @@ export const numberToWords = (amount: number): string => {
   
   if (amount === 0) return 'Zero Rupees Only';
   
-  const rupees = Math.floor(amount);
-  const paise = Math.round((amount - rupees) * 100);
+  let rupeesAmount = Math.floor(amount);
+  const paise = Math.round((amount - rupeesAmount) * 100);
   
   let result = '';
   
-  if (rupees >= 10000000) {
-    result += convertGroup(Math.floor(rupees / 10000000)) + 'Crore ';
-    rupees %= 10000000;
+  if (rupeesAmount >= 10000000) {
+    result += convertGroup(Math.floor(rupeesAmount / 10000000)) + 'Crore ';
+    rupeesAmount %= 10000000;
   }
   
-  if (rupees >= 100000) {
-    result += convertGroup(Math.floor(rupees / 100000)) + 'Lakh ';
-    rupees %= 100000;
+  if (rupeesAmount >= 100000) {
+    result += convertGroup(Math.floor(rupeesAmount / 100000)) + 'Lakh ';
+    rupeesAmount %= 100000;
   }
   
-  if (rupees >= 1000) {
-    result += convertGroup(Math.floor(rupees / 1000)) + 'Thousand ';
-    rupees %= 1000;
+  if (rupeesAmount >= 1000) {
+    result += convertGroup(Math.floor(rupeesAmount / 1000)) + 'Thousand ';
+    rupeesAmount %= 1000;
   }
   
-  if (rupees > 0) {
-    result += convertGroup(rupees);
+  if (rupeesAmount > 0) {
+    result += convertGroup(rupeesAmount);
   }
   
   result += 'Rupees';

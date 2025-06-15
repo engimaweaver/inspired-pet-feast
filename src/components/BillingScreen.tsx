@@ -10,25 +10,11 @@ import SearchAndControls from './billing/SearchAndControls';
 import OrderSummary from './billing/OrderSummary';
 import PaymentDialog from './billing/PaymentDialog';
 import { UnifiedOrderItem } from '@/types/unified-billing';
-import { MenuItem } from '@/types/billing';
+import { MenuItem as MenuItemType } from '@/types/billing';
 import { useBillingCalculations } from '@/hooks/useBillingCalculations';
 import { SAMPLE_MENU_ITEMS_INR } from '@/constants/indiaData';
-
-interface OrderItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  category: string;
-}
-
-interface MenuItem {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  available: boolean;
-}
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getDisplayText, getToastText } from '@/utils/languageUtils';
 
 const BillingScreen = () => {
   const [orderItems, setOrderItems] = useState<UnifiedOrderItem[]>([]);
@@ -37,9 +23,10 @@ const BillingScreen = () => {
   const [quickAddModalOpen, setQuickAddModalOpen] = useState(false);
   const [interfaceMode, setInterfaceMode] = useState<'desktop' | 'touch'>('desktop');
   const { toast } = useToast();
+  const { language } = useLanguage();
 
   // Convert sample menu items to proper format
-  const menuItems: MenuItem[] = SAMPLE_MENU_ITEMS_INR.map(item => ({
+  const menuItems: MenuItemType[] = SAMPLE_MENU_ITEMS_INR.map(item => ({
     ...item,
     available: true
   }));
@@ -55,7 +42,7 @@ const BillingScreen = () => {
     return matchesSearch && matchesCategory && item.available;
   });
 
-  const addToOrder = (menuItem: MenuItem) => {
+  const addToOrder = (menuItem: MenuItemType) => {
     const existingItem = orderItems.find(item => item.id === menuItem.id);
     if (existingItem) {
       setOrderItems(orderItems.map(item =>
@@ -74,10 +61,14 @@ const BillingScreen = () => {
         hsnCode: menuItemWithHSN?.hsnCode
       }]);
     }
-    toast({
-      title: "Item Added",
-      description: `${menuItem.name} added to order`,
-    });
+    const toastText = getToastText(
+      'Item Added',
+      'आइटम जोड़ा गया',
+      `${menuItem.name} added to order`,
+      `${menuItem.name} ऑर्डर में जोड़ा गया`,
+      language
+    );
+    toast(toastText);
   };
 
   const updateQuantity = (id: string, change: number) => {
@@ -99,26 +90,40 @@ const BillingScreen = () => {
 
   const clearOrder = () => {
     setOrderItems([]);
-    toast({
-      title: "Order Cleared",
-      description: "All items removed from order",
-    });
+    const toastText = getToastText(
+      'Order Cleared',
+      'ऑर्डर साफ़ किया गया',
+      'All items removed from order',
+      'ऑर्डर से सभी आइटम हटा दिए गए',
+      language
+    );
+    toast(toastText);
   };
 
   const printBill = () => {
     if (orderItems.length === 0) {
+      const toastText = getToastText(
+        'No Items',
+        'कोई आइटम नहीं',
+        'Please add items to print bill',
+        'बिल प्रिंट करने के लिए कृपया आइटम जोड़ें',
+        language
+      );
       toast({
-        title: "No Items",
-        description: "Please add items to print bill",
+        ...toastText,
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: "Printing Bill",
-      description: "Bill sent to printer",
-    });
+    const toastText = getToastText(
+      'Printing Bill',
+      'बिल प्रिंट हो रहा है',
+      'Bill sent to printer',
+      'बिल प्रिंटर को भेजा गया',
+      language
+    );
+    toast(toastText);
     
     window.print();
   };
@@ -132,14 +137,16 @@ const BillingScreen = () => {
     return (
       <div className="h-full">
         <div className="flex justify-between items-center p-4 bg-white border-b">
-          <h1 className="text-xl font-bold">स्पर्श बिलिंग इंटरफेस / Touch Billing Interface</h1>
+          <h1 className="text-xl font-bold">
+            {getDisplayText('Touch Billing Interface', 'स्पर्श बिलिंग इंटरफेस', language)}
+          </h1>
           <Button
             variant="outline"
             onClick={() => setInterfaceMode('desktop')}
             className="flex items-center gap-2"
           >
             <Monitor className="h-4 w-4" />
-            डेस्कटॉप पर स्विच करें / Switch to Desktop
+            {getDisplayText('Switch to Desktop', 'डेस्कटॉप पर स्विच करें', language)}
           </Button>
         </div>
         <TouchBillingScreen />
@@ -151,14 +158,16 @@ const BillingScreen = () => {
     <div className="h-full flex">
       <div className="flex-1 p-4 space-y-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">डेस्कटॉप बिलिंग इंटरफेस / Desktop Billing Interface</h1>
+          <h1 className="text-xl font-bold">
+            {getDisplayText('Desktop Billing Interface', 'डेस्कटॉप बिलिंग इंटरफेस', language)}
+          </h1>
           <Button
             variant="outline"
             onClick={() => setInterfaceMode('touch')}
             className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
           >
             <Smartphone className="h-4 w-4" />
-            स्पर्श इंटरफेस पर स्विच करें / Switch to Touch Interface
+            {getDisplayText('Switch to Touch Interface', 'स्पर्श इंटरफेस पर स्विच करें', language)}
           </Button>
         </div>
 

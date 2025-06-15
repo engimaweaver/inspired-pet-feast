@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { UnifiedOrderItem } from '@/types/unified-billing';
 import { useBillingCalculations } from '@/hooks/useBillingCalculations';
 import { formatIndianCurrency } from '@/utils/gstUtils';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getDisplayText } from '@/utils/languageUtils';
 
 interface OrderSummaryProps {
   orderItems: UnifiedOrderItem[];
@@ -24,6 +26,7 @@ const OrderSummary = ({
   onProcessPayment,
   onPrintBill
 }: OrderSummaryProps) => {
+  const { language } = useLanguage();
   const billSummary = useBillingCalculations(orderItems);
 
   const calculateItemTotal = (item: UnifiedOrderItem) => {
@@ -38,7 +41,7 @@ const OrderSummary = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          वर्तमान ऑर्डर / Current Order
+          {getDisplayText('Current Order', 'वर्तमान ऑर्डर', language)}
           {orderItems.length > 0 && (
             <Button variant="outline" size="sm" onClick={onClearOrder}>
               <Trash2 className="h-4 w-4" />
@@ -49,7 +52,7 @@ const OrderSummary = ({
       <CardContent>
         {orderItems.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
-            ऑर्डर में कोई आइटम नहीं / No items in order
+            {getDisplayText('No items in order', 'ऑर्डर में कोई आइटम नहीं', language)}
           </p>
         ) : (
           <div className="space-y-4">
@@ -57,9 +60,9 @@ const OrderSummary = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-20">मात्रा / Qty</TableHead>
-                    <TableHead>वस्तु / Item</TableHead>
-                    <TableHead className="w-20">मूल्य / Price</TableHead>
+                    <TableHead className="w-20">{getDisplayText('Qty', 'मात्रा', language)}</TableHead>
+                    <TableHead>{getDisplayText('Item', 'वस्तु', language)}</TableHead>
+                    <TableHead className="w-20">{getDisplayText('Price', 'मूल्य', language)}</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -91,7 +94,7 @@ const OrderSummary = ({
                         <div className="font-medium">{item.name}</div>
                         {item.discount && (
                           <div className="text-xs text-green-600">
-                            Discount: {item.discount > 1 ? formatIndianCurrency(item.discount) : item.discount + '%'}
+                            {getDisplayText('Discount', 'छूट', language)}: {item.discount > 1 ? formatIndianCurrency(item.discount) : item.discount + '%'}
                           </div>
                         )}
                       </TableCell>
@@ -114,41 +117,41 @@ const OrderSummary = ({
 
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between">
-                <span>उप-योग / Subtotal:</span>
+                <span>{getDisplayText('Subtotal', 'उप-योग', language)}:</span>
                 <span>{formatIndianCurrency(billSummary.subtotal)}</span>
               </div>
               {billSummary.totalDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>छूट / Discount:</span>
+                  <span>{getDisplayText('Discount', 'छूट', language)}:</span>
                   <span>-{formatIndianCurrency(billSummary.totalDiscount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span>सीजीएसटी / CGST:</span>
+                <span>{getDisplayText('CGST', 'सीजीएसटी', language)}:</span>
                 <span>{formatIndianCurrency(billSummary.gstBreakdown.cgst)}</span>
               </div>
               <div className="flex justify-between">
-                <span>एसजीएसटी / SGST:</span>
+                <span>{getDisplayText('SGST', 'एसजीएसटी', language)}:</span>
                 <span>{formatIndianCurrency(billSummary.gstBreakdown.sgst)}</span>
               </div>
               {billSummary.gstBreakdown.igst > 0 && (
                 <div className="flex justify-between">
-                  <span>आईजीएसटी / IGST:</span>
+                  <span>{getDisplayText('IGST', 'आईजीएसटी', language)}:</span>
                   <span>{formatIndianCurrency(billSummary.gstBreakdown.igst)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-lg border-t pt-2">
-                <span>कुल / Total:</span>
+                <span>{getDisplayText('Total', 'कुल', language)}:</span>
                 <span>{formatIndianCurrency(billSummary.grandTotal)}</span>
               </div>
             </div>
 
             <div className="space-y-2">
               <Button onClick={onProcessPayment} className="w-full" size="lg">
-                भुगतान करें / Process Payment
+                {getDisplayText('Process Payment', 'भुगतान करें', language)}
               </Button>
               <Button variant="outline" className="w-full" onClick={onPrintBill}>
-                बिल प्रिंट करें / Print Bill
+                {getDisplayText('Print Bill', 'बिल प्रिंट करें', language)}
               </Button>
             </div>
           </div>
