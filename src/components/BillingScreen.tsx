@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Monitor, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -96,8 +95,8 @@ const BillingScreen = () => {
 
   const calculateGrandTotal = () => {
     const total = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const tax = Math.round(total * 0.18);
-    return total + tax;
+    const gst = Math.round(total * 0.18); // Changed from tax to GST
+    return total + gst;
   };
 
   const handlePaymentComplete = () => {
@@ -131,18 +130,26 @@ const BillingScreen = () => {
     });
   };
 
+  const formatIndianCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   if (interfaceMode === 'touch') {
     return (
       <div className="h-full">
         <div className="flex justify-between items-center p-4 bg-white border-b">
-          <h1 className="text-xl font-bold">Touch Billing Interface</h1>
+          <h1 className="text-xl font-bold">स्पर्श बिलिंग इंटरफेस / Touch Billing Interface</h1>
           <Button
             variant="outline"
             onClick={() => setInterfaceMode('desktop')}
             className="flex items-center gap-2"
           >
             <Monitor className="h-4 w-4" />
-            Switch to Desktop
+            डेस्कटॉप पर स्विच करें / Switch to Desktop
           </Button>
         </div>
         <TouchBillingScreen />
@@ -154,14 +161,14 @@ const BillingScreen = () => {
     <div className="h-full flex">
       <div className="flex-1 p-4 space-y-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">Desktop Billing Interface</h1>
+          <h1 className="text-xl font-bold">डेस्कटॉप बिलिंग इंटरफेस / Desktop Billing Interface</h1>
           <Button
             variant="outline"
             onClick={() => setInterfaceMode('touch')}
             className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
           >
             <Smartphone className="h-4 w-4" />
-            Switch to Touch Interface
+            स्पर्श इंटरफेस पर स्विच करें / Switch to Touch Interface
           </Button>
         </div>
 

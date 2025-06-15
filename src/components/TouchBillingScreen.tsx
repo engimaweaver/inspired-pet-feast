@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Plus, Minus, Trash2, CreditCard, Printer, Search, ShoppingCart, Grid3X3, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -112,12 +111,12 @@ const TouchBillingScreen = () => {
     return orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const calculateTax = () => {
+  const calculateGST = () => {
     return Math.round(calculateTotal() * 0.18);
   };
 
   const calculateGrandTotal = () => {
-    return calculateTotal() + calculateTax();
+    return calculateTotal() + calculateGST();
   };
 
   const clearOrder = () => {
@@ -146,6 +145,14 @@ const TouchBillingScreen = () => {
     });
   };
 
+  const formatIndianCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header with Search and Controls */}
@@ -154,7 +161,7 @@ const TouchBillingScreen = () => {
           <div className="flex-1 relative max-w-md">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
-              placeholder="Search items..."
+              placeholder="वस्तुएं खोजें / Search items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-12 h-12 text-lg rounded-xl border-2"
@@ -270,7 +277,7 @@ const TouchBillingScreen = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <ShoppingCart className="h-6 w-6" />
-                Current Order
+                वर्तमान ऑर्डर / Current Order
               </h2>
               {orderItems.length > 0 && (
                 <Button variant="outline" size="lg" onClick={clearOrder} className="h-10">
@@ -280,7 +287,7 @@ const TouchBillingScreen = () => {
             </div>
             {orderItems.length > 0 && (
               <Badge variant="secondary" className="mt-2 text-sm">
-                {orderItems.reduce((sum, item) => sum + item.quantity, 0)} items
+                {orderItems.reduce((sum, item) => sum + item.quantity, 0)} वस्तुएं / items
               </Badge>
             )}
           </div>
@@ -289,8 +296,8 @@ const TouchBillingScreen = () => {
             {orderItems.length === 0 ? (
               <div className="text-center text-gray-500 mt-20">
                 <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                <p className="text-lg">No items in order</p>
-                <p className="text-sm">Tap items to add them</p>
+                <p className="text-lg">ऑर्डर में कोई वस्तु नहीं / No items in order</p>
+                <p className="text-sm">वस्तुओं को जोड़ने के लिए टैप करें / Tap items to add them</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -300,7 +307,7 @@ const TouchBillingScreen = () => {
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
                           <h4 className="font-semibold text-lg">{item.name}</h4>
-                          <p className="text-sm text-gray-600">₹{item.price} each</p>
+                          <p className="text-sm text-gray-600">{formatIndianCurrency(item.price)} प्रत्येक / each</p>
                         </div>
                         <Button
                           size="sm"
@@ -331,7 +338,7 @@ const TouchBillingScreen = () => {
                             <Plus className="h-5 w-5" />
                           </Button>
                         </div>
-                        <span className="text-xl font-bold text-green-600">₹{item.price * item.quantity}</span>
+                        <span className="text-xl font-bold text-green-600">{formatIndianCurrency(item.price * item.quantity)}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -345,16 +352,16 @@ const TouchBillingScreen = () => {
             <div className="border-t bg-gray-50 p-4 space-y-4">
               <div className="space-y-3 text-lg">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span className="font-semibold">₹{calculateTotal()}</span>
+                  <span>उप-योग / Subtotal:</span>
+                  <span className="font-semibold">{formatIndianCurrency(calculateTotal())}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tax (18%):</span>
-                  <span className="font-semibold">₹{calculateTax()}</span>
+                  <span>जीएसटी / GST (18%):</span>
+                  <span className="font-semibold">{formatIndianCurrency(calculateGST())}</span>
                 </div>
                 <div className="flex justify-between text-xl font-bold border-t pt-3">
-                  <span>Total:</span>
-                  <span className="text-green-600">₹{calculateGrandTotal()}</span>
+                  <span>कुल / Total:</span>
+                  <span className="text-green-600">{formatIndianCurrency(calculateGrandTotal())}</span>
                 </div>
               </div>
 
@@ -365,7 +372,7 @@ const TouchBillingScreen = () => {
                   onClick={() => setPaymentModalOpen(true)}
                 >
                   <CreditCard className="h-6 w-6 mr-3" />
-                  Process Payment
+                  भुगतान करें / Process Payment
                 </Button>
                 <Button 
                   variant="outline" 
@@ -373,7 +380,7 @@ const TouchBillingScreen = () => {
                   onClick={printBill}
                 >
                   <Printer className="h-5 w-5 mr-2" />
-                  Print Bill
+                  बिल प्रिंट करें / Print Bill
                 </Button>
               </div>
             </div>

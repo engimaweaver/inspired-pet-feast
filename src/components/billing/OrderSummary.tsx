@@ -29,23 +29,31 @@ const OrderSummary = ({
   onProcessPayment,
   onPrintBill
 }: OrderSummaryProps) => {
+  const formatIndianCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const calculateTotal = () => {
     return orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const calculateTax = () => {
-    return Math.round(calculateTotal() * 0.18);
+  const calculateGST = () => {
+    return Math.round(calculateTotal() * 0.18); // 18% GST for restaurants
   };
 
   const calculateGrandTotal = () => {
-    return calculateTotal() + calculateTax();
+    return calculateTotal() + calculateGST();
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          Current Order
+          वर्तमान ऑर्डर / Current Order
           {orderItems.length > 0 && (
             <Button variant="outline" size="sm" onClick={onClearOrder}>
               <Trash2 className="h-4 w-4" />
@@ -55,16 +63,18 @@ const OrderSummary = ({
       </CardHeader>
       <CardContent>
         {orderItems.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No items in order</p>
+          <p className="text-gray-500 text-center py-8">
+            ऑर्डर में कोई आइटम नहीं / No items in order
+          </p>
         ) : (
           <div className="space-y-4">
             <div className="max-h-60 overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-20">Qty</TableHead>
-                    <TableHead>Item</TableHead>
-                    <TableHead className="w-20">Price</TableHead>
+                    <TableHead className="w-20">मात्रा / Qty</TableHead>
+                    <TableHead>वस्तु / Item</TableHead>
+                    <TableHead className="w-20">मूल्य / Price</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -93,7 +103,7 @@ const OrderSummary = ({
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell>₹{item.price * item.quantity}</TableCell>
+                      <TableCell>{formatIndianCurrency(item.price * item.quantity)}</TableCell>
                       <TableCell>
                         <Button
                           size="sm"
@@ -112,25 +122,25 @@ const OrderSummary = ({
 
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>₹{calculateTotal()}</span>
+                <span>उप-योग / Subtotal:</span>
+                <span>{formatIndianCurrency(calculateTotal())}</span>
               </div>
               <div className="flex justify-between">
-                <span>Tax (18%):</span>
-                <span>₹{calculateTax()}</span>
+                <span>जीएसटी / GST (18%):</span>
+                <span>{formatIndianCurrency(calculateGST())}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2">
-                <span>Total:</span>
-                <span>₹{calculateGrandTotal()}</span>
+                <span>कुल / Total:</span>
+                <span>{formatIndianCurrency(calculateGrandTotal())}</span>
               </div>
             </div>
 
             <div className="space-y-2">
               <Button onClick={onProcessPayment} className="w-full" size="lg">
-                Process Payment
+                भुगतान करें / Process Payment
               </Button>
               <Button variant="outline" className="w-full" onClick={onPrintBill}>
-                Print Bill
+                बिल प्रिंट करें / Print Bill
               </Button>
             </div>
           </div>

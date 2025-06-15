@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { CreditCard, Banknote, Smartphone, Calculator, Check } from 'lucide-react';
+import { CreditCard, Banknote, Smartphone, Calculator, Check, QrCode } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,17 +16,25 @@ interface TouchPaymentModalProps {
 }
 
 const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchPaymentModalProps) => {
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi'>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi' | 'paytm' | 'phonepe' | 'googlepay'>('cash');
   const [amountReceived, setAmountReceived] = useState('');
   const [showCalculator, setShowCalculator] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const [calculatorValue, setCalculatorValue] = useState('');
   const { toast } = useToast();
 
+  // Indian payment methods with proper icons and colors
   const paymentMethods = [
     { id: 'cash', name: 'Cash', icon: Banknote, color: 'bg-green-500 hover:bg-green-600' },
     { id: 'card', name: 'Card', icon: CreditCard, color: 'bg-blue-500 hover:bg-blue-600' },
-    { id: 'upi', name: 'UPI', icon: Smartphone, color: 'bg-purple-500 hover:bg-purple-600' },
+    { id: 'upi', name: 'UPI', icon: QrCode, color: 'bg-purple-500 hover:bg-purple-600' },
+    { id: 'paytm', name: 'Paytm', icon: Smartphone, color: 'bg-blue-600 hover:bg-blue-700' },
+    { id: 'phonepe', name: 'PhonePe', icon: Smartphone, color: 'bg-purple-600 hover:bg-purple-700' },
+    { id: 'googlepay', name: 'Google Pay', icon: Smartphone, color: 'bg-red-500 hover:bg-red-600' },
   ];
+
+  // Indian denomination breakdown for cash
+  const denominations = [2000, 500, 200, 100, 50, 20, 10, 5, 2, 1];
 
   const calculatorButtons = [
     ['7', '8', '9', 'C'],
@@ -51,8 +59,8 @@ const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchP
   const handlePayment = () => {
     if (paymentMethod === 'cash' && !amountReceived) {
       toast({
-        title: "Amount Required",
-        description: "Please enter the amount received",
+        title: "राशि आवश्यक / Amount Required",
+        description: "कृपया प्राप्त राशि दर्ज करें / Please enter the amount received",
         variant: "destructive",
       });
       return;
@@ -60,16 +68,16 @@ const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchP
 
     if (paymentMethod === 'cash' && Number(amountReceived) < total) {
       toast({
-        title: "Insufficient Amount",
-        description: "Amount received is less than total",
+        title: "अपर्याप्त राशि / Insufficient Amount",
+        description: "प्राप्त राशि कुल से कम है / Amount received is less than total",
         variant: "destructive",
       });
       return;
     }
 
     toast({
-      title: "Payment Successful",
-      description: `Order processed via ${paymentMethod}`,
+      title: "भुगतान सफल / Payment Successful",
+      description: `${paymentMethod} के माध्यम से ऑर्डर संसाधित / Order processed via ${paymentMethod}`,
       duration: 2000,
     });
     
@@ -80,50 +88,105 @@ const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchP
     return Math.max(0, Number(amountReceived) - total);
   };
 
+  const formatIndianCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getDenominationBreakdown = (amount: number) => {
+    const breakdown: { [key: number]: number } = {};
+    let remaining = amount;
+
+    denominations.forEach(denom => {
+      if (remaining >= denom) {
+        breakdown[denom] = Math.floor(remaining / denom);
+        remaining = remaining % denom;
+      }
+    });
+
+    return breakdown;
+  };
+
+  const generateUPIQR = () => {
+    // Simplified UPI QR code data (in real implementation, use proper UPI URL format)
+    return `upi://pay?pa=merchant@upi&pn=Restaurant&am=${total}&cu=INR&tn=Bill Payment`;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto">
+      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">Process Payment</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-center">
+            भुगतान करें / Process Payment
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Total Amount */}
           <Card className="bg-gray-50">
             <CardContent className="p-6 text-center">
-              <p className="text-lg text-gray-600 mb-2">Total Amount</p>
-              <p className="text-4xl font-bold text-green-600">₹{total}</p>
+              <p className="text-lg text-gray-600 mb-2">कुल राशि / Total Amount</p>
+              <p className="text-4xl font-bold text-green-600">{formatIndianCurrency(total)}</p>
             </CardContent>
           </Card>
 
           {/* Payment Method Selection */}
           <div>
-            <p className="text-lg font-semibold mb-4">Select Payment Method</p>
-            <div className="grid grid-cols-3 gap-3">
+            <p className="text-lg font-semibold mb-4">भुगतान विधि चुनें / Select Payment Method</p>
+            <div className="grid grid-cols-2 gap-3">
               {paymentMethods.map(method => {
                 const Icon = method.icon;
                 return (
                   <Button
                     key={method.id}
                     variant={paymentMethod === method.id ? "default" : "outline"}
-                    onClick={() => setPaymentMethod(method.id as any)}
-                    className={`h-20 flex flex-col gap-2 ${
+                    onClick={() => {
+                      setPaymentMethod(method.id as any);
+                      if (method.id === 'upi') {
+                        setShowQR(true);
+                      } else {
+                        setShowQR(false);
+                      }
+                    }}
+                    className={`h-16 flex flex-col gap-1 ${
                       paymentMethod === method.id ? `${method.color} text-white` : ''
                     }`}
                   >
-                    <Icon className="h-6 w-6" />
-                    <span className="text-sm font-medium">{method.name}</span>
+                    <Icon className="h-5 w-5" />
+                    <span className="text-xs font-medium">{method.name}</span>
                   </Button>
                 );
               })}
             </div>
           </div>
 
+          {/* UPI QR Code */}
+          {['upi', 'paytm', 'phonepe', 'googlepay'].includes(paymentMethod) && (
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="p-4 text-center">
+                <div className="bg-white p-4 rounded-lg mb-4 inline-block">
+                  <QrCode className="h-32 w-32 mx-auto" />
+                  <p className="text-xs mt-2 text-gray-600">QR Code for {paymentMethod.toUpperCase()}</p>
+                </div>
+                <p className="text-blue-800 text-sm">
+                  {paymentMethod === 'upi' 
+                    ? 'कृपया UPI ऐप से QR कोड स्कैन करें / Please scan QR code with UPI app'
+                    : `कृपया ${paymentMethod} ऐप से QR कोड स्कैन करें / Please scan QR code with ${paymentMethod} app`
+                  }
+                </p>
+                <p className="text-xs text-gray-600 mt-2">Amount: {formatIndianCurrency(total)}</p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Cash Payment Input */}
           {paymentMethod === 'cash' && (
             <div className="space-y-4">
               <div>
-                <p className="text-lg font-semibold mb-3">Amount Received</p>
+                <p className="text-lg font-semibold mb-3">प्राप्त राशि / Amount Received</p>
                 <div className="flex gap-2">
                   <Input
                     type="number"
@@ -142,7 +205,7 @@ const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchP
                 </div>
               </div>
 
-              {/* Quick Amount Buttons */}
+              {/* Quick Amount Buttons with Indian denominations */}
               <div className="grid grid-cols-4 gap-2">
                 {[total, Math.ceil(total / 100) * 100, 500, 1000].map(amount => (
                   <Button
@@ -151,21 +214,36 @@ const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchP
                     onClick={() => setAmountReceived(amount.toString())}
                     className="h-12 text-sm"
                   >
-                    ₹{amount}
+                    {formatIndianCurrency(amount)}
                   </Button>
                 ))}
               </div>
 
-              {/* Change Calculation */}
+              {/* Change Calculation with Denomination Breakdown */}
               {amountReceived && Number(amountReceived) >= total && (
                 <Card className="bg-green-50 border-green-200">
                   <CardContent className="p-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">Change to Return:</span>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-lg font-semibold">वापसी / Change to Return:</span>
                       <Badge variant="secondary" className="bg-green-100 text-green-800 text-lg px-3 py-1">
-                        ₹{getChange()}
+                        {formatIndianCurrency(getChange())}
                       </Badge>
                     </div>
+                    
+                    {/* Denomination breakdown */}
+                    {getChange() > 0 && (
+                      <div className="mt-3 p-3 bg-white rounded border">
+                        <p className="text-sm font-medium mb-2">नोट/सिक्के का विवरण / Denomination Breakdown:</p>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          {Object.entries(getDenominationBreakdown(getChange())).map(([denom, count]) => (
+                            <div key={denom} className="flex justify-between bg-gray-50 p-1 rounded">
+                              <span>₹{denom}:</span>
+                              <span>{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -202,15 +280,12 @@ const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchP
             </div>
           )}
 
-          {/* UPI/Card Instructions */}
-          {paymentMethod !== 'cash' && (
+          {/* Card Instructions */}
+          {paymentMethod === 'card' && (
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="p-4 text-center">
                 <p className="text-blue-800">
-                  {paymentMethod === 'upi' 
-                    ? 'Please ask customer to scan QR code or share UPI ID' 
-                    : 'Please insert or swipe the customer\'s card'
-                  }
+                  कृपया ग्राहक का कार्ड डालें या स्वाइप करें / Please insert or swipe the customer's card
                 </p>
               </CardContent>
             </Card>
@@ -223,7 +298,7 @@ const TouchPaymentModal = ({ isOpen, onClose, total, onPaymentComplete }: TouchP
             disabled={paymentMethod === 'cash' && (!amountReceived || Number(amountReceived) < total)}
           >
             <Check className="h-6 w-6 mr-3" />
-            Complete Payment
+            भुगतान पूरा करें / Complete Payment
           </Button>
         </div>
       </DialogContent>
