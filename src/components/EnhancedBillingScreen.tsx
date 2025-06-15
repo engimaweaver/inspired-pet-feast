@@ -11,18 +11,20 @@ import SearchAndControls from './billing/SearchAndControls';
 import EnhancedOrderSummary from './billing/EnhancedOrderSummary';
 import PaymentDialog from './billing/PaymentDialog';
 import BillTabs from './billing/BillTabs';
-import { BillManagerProvider, useBillManager } from './billing/BillManager';
+import { SimplifiedBillManagerProvider, useSimplifiedBillManager } from './billing/SimplifiedBillManager';
 import { OrderItem, MenuItem } from '@/types/billing';
+import { StandardizedCard } from '@/components/ui/standardized-card';
+import { formatIndianCurrency } from '@/utils/currencyUtils';
+import { calculateBillingTotals } from '@/utils/billingCalculations';
 
 const BillingContent = () => {
-  const { activeBill, updateBillItems } = useBillManager();
+  const { activeBill, updateBillItems } = useSimplifiedBillManager();
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [quickAddModalOpen, setQuickAddModalOpen] = useState(false);
   const [interfaceMode, setInterfaceMode] = useState<'desktop' | 'touch'>('desktop');
   const { toast } = useToast();
 
-  // Sample menu items
   const menuItems: MenuItem[] = [
     { id: '1', name: 'Butter Chicken', price: 320, category: 'Main Course', available: true },
     { id: '2', name: 'Dal Makhani', price: 180, category: 'Main Course', available: true },
@@ -111,29 +113,6 @@ const BillingContent = () => {
     });
   };
 
-  const formatIndianCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const calculateSubtotal = () => {
-    return orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const calculateGSTAmount = () => {
-    const subtotal = calculateSubtotal();
-    return Math.round(subtotal * 0.18);
-  };
-
-  const calculateGrandTotal = () => {
-    const subtotal = calculateSubtotal();
-    const gst = calculateGSTAmount();
-    return subtotal + gst;
-  };
-
   const handlePaymentComplete = () => {
     setPaymentDialogOpen(false);
     if (activeBill) {
@@ -164,21 +143,26 @@ const BillingContent = () => {
     updateBillItems(activeBill.id, items);
   };
 
+  const billingTotals = calculateBillingTotals(orderItems);
+
   if (interfaceMode === 'touch') {
     return (
       <div className="h-full">
-        <div className="flex justify-between items-center p-4 bg-white border-b">
-          <h1 className="text-xl font-bold">स्पर्श बिलिंग इंटरफेस / Touch Billing Interface</h1>
-          <Button
-            variant="outline"
-            onClick={() => setInterfaceMode('desktop')}
-            className="flex items-center gap-2"
-          >
-            <Monitor className="h-4 w-4" />
-            डेस्कटॉप पर स्विच करें / Switch to Desktop
-          </Button>
-        </div>
-        <TouchBillingScreen />
+        <StandardizedCard 
+          title="स्पर्श बिलिंग इंटरफेस / Touch Billing Interface"
+          action={
+            <Button
+              variant="outline"
+              onClick={() => setInterfaceMode('desktop')}
+              className="flex items-center gap-2"
+            >
+              <Monitor className="h-4 w-4" />
+              डेस्कटॉप पर स्विच करें / Switch to Desktop
+            </Button>
+          }
+        >
+          <TouchBillingScreen />
+        </StandardizedCard>
       </div>
     );
   }
@@ -189,43 +173,45 @@ const BillingContent = () => {
       
       <div className="flex-1 flex">
         <div className="flex-1 p-4 space-y-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-xl font-bold">
-              उन्नत बिलिंग / Enhanced Billing - {activeBill?.name || 'कोई सक्रिय बिल नहीं / No Active Bill'}
-            </h1>
-            <Button
-              variant="outline"
-              onClick={() => setInterfaceMode('touch')}
-              className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-            >
-              <Smartphone className="h-4 w-4" />
-              स्पर्श इंटरफेस पर स्विच करें / Switch to Touch Interface
-            </Button>
-          </div>
-
-          <SearchAndControls
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            menuItems={menuItems}
-            onAddToOrder={addToOrder}
-            onQuickAddClick={() => setQuickAddModalOpen(true)}
-          />
-
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
-            {filteredMenuItems.map(item => (
-              <MenuItemCard
-                key={item.id}
-                item={item}
+          <StandardizedCard
+            title={`उन्नत बिलिंग / Enhanced Billing - ${activeBill?.name || 'कोई सक्रिय बिल नहीं / No Active Bill'}`}
+            action={
+              <Button
+                variant="outline"
+                onClick={() => setInterfaceMode('touch')}
+                className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+              >
+                <Smartphone className="h-4 w-4" />
+                स्पर्श इंटरफेस पर स्विच करें / Switch to Touch Interface
+              </Button>
+            }
+          >
+            <div className="space-y-4">
+              <SearchAndControls
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                menuItems={menuItems}
                 onAddToOrder={addToOrder}
+                onQuickAddClick={() => setQuickAddModalOpen(true)}
               />
-            ))}
-          </div>
+
+              <CategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
+                {filteredMenuItems.map(item => (
+                  <MenuItemCard
+                    key={item.id}
+                    item={item}
+                    onAddToOrder={addToOrder}
+                  />
+                ))}
+              </div>
+            </div>
+          </StandardizedCard>
         </div>
 
         <div className="w-96 p-4">
@@ -244,8 +230,8 @@ const BillingContent = () => {
       <PaymentDialog
         isOpen={paymentDialogOpen}
         onClose={() => setPaymentDialogOpen(false)}
-        grandTotal={calculateGrandTotal()}
-        gstAmount={calculateGSTAmount()}
+        grandTotal={billingTotals.grandTotal}
+        gstAmount={billingTotals.gstAmount}
         onPaymentComplete={handlePaymentComplete}
       />
 
@@ -261,9 +247,9 @@ const BillingContent = () => {
 
 const EnhancedBillingScreen = () => {
   return (
-    <BillManagerProvider>
+    <SimplifiedBillManagerProvider>
       <BillingContent />
-    </BillManagerProvider>
+    </SimplifiedBillManagerProvider>
   );
 };
 
