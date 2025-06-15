@@ -15,17 +15,31 @@ import {
   CheckCircle,
   Settings
 } from 'lucide-react';
-import ThermalPrinterService from '../services/ThermalPrinterService';
-import BarcodeScannerService from '../services/BarcodeScannerService';
-import CashDrawerService from '../services/CashDrawerService';
-import KitchenDisplayHardwareService from '../services/KitchenDisplayHardwareService';
+import ThermalPrinterService, { PrinterStatus } from '../services/ThermalPrinterService';
+import BarcodeScannerService, { ScannerStatus } from '../services/BarcodeScannerService';
+import CashDrawerService, { DrawerStatus } from '../services/CashDrawerService';
+import KitchenDisplayHardwareService, { DisplayStatus } from '../services/KitchenDisplayHardwareService';
 import { useToast } from '@/hooks/use-toast';
 
 const HardwareIntegrationPanel = () => {
-  const [printerStatus, setPrinterStatus] = useState({ connected: false, error: '' });
-  const [scannerStatus, setScannerStatus] = useState({ connected: false, scanning: false });
-  const [drawerStatus, setDrawerStatus] = useState({ connected: false });
-  const [displayStatus, setDisplayStatus] = useState({ connected: false });
+  const [printerStatus, setPrinterStatus] = useState<PrinterStatus>({ 
+    connected: false, 
+    paperStatus: 'out', 
+    temperature: 'normal' 
+  });
+  const [scannerStatus, setScannerStatus] = useState<ScannerStatus>({ 
+    connected: false, 
+    scanning: false 
+  });
+  const [drawerStatus, setDrawerStatus] = useState<DrawerStatus>({ 
+    connected: false, 
+    open: false 
+  });
+  const [displayStatus, setDisplayStatus] = useState<DisplayStatus>({ 
+    connected: false, 
+    brightness: 0, 
+    temperature: 0 
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -246,8 +260,8 @@ const HardwareIntegrationPanel = () => {
           additionalInfo={
             printerStatus.connected && (
               <div className="text-sm text-gray-600">
-                <div>Paper: {printerStatus.paperStatus || 'Unknown'}</div>
-                <div>Temperature: {printerStatus.temperature || 'Unknown'}</div>
+                <div>Paper: {printerStatus.paperStatus}</div>
+                <div>Temperature: {printerStatus.temperature}</div>
               </div>
             )
           }
@@ -290,8 +304,8 @@ const HardwareIntegrationPanel = () => {
           additionalInfo={
             displayStatus.connected && (
               <div className="text-sm text-gray-600">
-                <div>Brightness: {displayStatus.brightness || 0}%</div>
-                <div>Temperature: {displayStatus.temperature || 0}°C</div>
+                <div>Brightness: {displayStatus.brightness}%</div>
+                <div>Temperature: {displayStatus.temperature}°C</div>
               </div>
             )
           }
