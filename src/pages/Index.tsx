@@ -97,12 +97,15 @@ const Index = () => {
       <div className="flex h-screen bg-gray-50">
         <Sidebar 
           isOpen={sidebarOpen} 
-          onToggle={toggleSidebar}
-          activeComponent={activeComponent}
-          onComponentChange={setActiveComponent}
+          activeSection={activeComponent}
+          setActiveSection={setActiveComponent}
+          userRole="admin"
         />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header onToggleSidebar={toggleSidebar} />
+          <Header 
+            toggleSidebar={toggleSidebar}
+            sidebarOpen={sidebarOpen}
+          />
           <main className="flex-1 overflow-auto">
             {renderActiveComponent()}
           </main>
