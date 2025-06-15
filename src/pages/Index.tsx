@@ -1,119 +1,114 @@
 
 import { useState } from 'react';
-import Header from '../components/Header';
-import RoleBasedHeader from '../components/RoleBasedHeader';
-import Sidebar from '../components/Sidebar';
-import Dashboard from '../components/Dashboard';
-import RoleBasedDashboard from '../components/RoleBasedDashboard';
-import MultiStoreAnalytics from '../components/MultiStoreAnalytics';
-import AdvancedAnalytics from '../components/AdvancedAnalytics';
-import StoreManagement from '../components/StoreManagement';
-import MenuManagement from '../components/MenuManagement';
-import StaffManagement from '../components/StaffManagement';
-import BillingScreen from '../components/BillingScreen';
-import FloorPlanScreen from '../components/FloorPlanScreen';
-import AdminFloorPlanScreen from '../components/AdminFloorPlanScreen';
-import InventoryManagement from '../components/InventoryManagement';
-import KitchenDisplaySystem from '../components/KitchenDisplaySystem';
-import CustomerLoyalty from '../components/CustomerLoyalty';
-import QuickAddButton from '../components/QuickAddButton';
-import AIRecommendationEngine from '../components/AIRecommendationEngine';
-import ReservationSystem from '../components/ReservationSystem';
-import OnlineOrderingSystem from '../components/OnlineOrderingSystem';
-import AdvancedReservationSystem from '../components/AdvancedReservationSystem';
-import EnhancedOnlineOrdering from '../components/EnhancedOnlineOrdering';
-import FinancialAnalytics from '../components/FinancialAnalytics';
-import CostManagement from '../components/CostManagement';
-import CustomerFeedback from '../components/CustomerFeedback';
-import ReviewManagement from '../components/ReviewManagement';
-import HardwareIntegrationPanel from '../components/HardwareIntegrationPanel';
-import EnhancedBillingScreen from '../components/EnhancedBillingScreen';
-
-// Mock user data - changed to cashier role
-const mockUser = {
-  id: '1',
-  name: 'Sarah Chen',
-  role: 'cashier' as const, // Changed from 'admin' to 'cashier'
-  store: 'Downtown Cafe'
-};
+import { useToast } from '@/hooks/use-toast';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import Sidebar from '@/components/Sidebar';
+import Header from '@/components/Header';
+import Dashboard from '@/components/Dashboard';
+import EnhancedBillingScreen from '@/components/EnhancedBillingScreen';
+import MenuManagement from '@/components/MenuManagement';
+import InventoryManagement from '@/components/InventoryManagement';
+import ReservationSystem from '@/components/ReservationSystem';
+import OnlineOrderingSystem from '@/components/OnlineOrderingSystem';
+import KitchenDisplaySystem from '@/components/KitchenDisplaySystem';
+import StaffManagement from '@/components/StaffManagement';
+import AdvancedAnalytics from '@/components/AdvancedAnalytics';
+import MultiStoreAnalytics from '@/components/MultiStoreAnalytics';
+import CustomerLoyalty from '@/components/CustomerLoyalty';
+import AIRecommendationEngine from '@/components/AIRecommendationEngine';
+import FloorPlanScreen from '@/components/FloorPlanScreen';
+import FinancialAnalytics from '@/components/FinancialAnalytics';
+import CostManagement from '@/components/CostManagement';
+import CustomerFeedback from '@/components/CustomerFeedback';
+import ReviewManagement from '@/components/ReviewManagement';
+import EnterpriseAnalyticsDashboard from '@/components/EnterpriseAnalyticsDashboard';
+import SystemMonitoringDashboard from '@/components/SystemMonitoringDashboard';
+import ComplianceManagement from '@/components/ComplianceManagement';
+import RoleBasedDashboard from '@/components/RoleBasedDashboard';
+import { usePremiumFeatures } from '@/hooks/usePremiumFeatures';
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeComponent, setActiveComponent] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { toast } = useToast();
+  const { isFeatureEnabled } = usePremiumFeatures();
 
-  const renderContent = () => {
-    switch (activeSection) {
+  // Mock user for role-based dashboard
+  const currentUser = {
+    id: 'user-1',
+    name: 'Admin User',
+    role: 'admin' as const,
+    store: 'all'
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const renderActiveComponent = () => {
+    switch (activeComponent) {
       case 'dashboard':
-        return <RoleBasedDashboard currentUser={mockUser} />;
-      case 'ai-recommendations':
-        return <AIRecommendationEngine />;
-      case 'reservations':
-        return <AdvancedReservationSystem />;
-      case 'online-ordering':
-        return <EnhancedOnlineOrdering />;
-      case 'analytics':
-        return ['admin', 'manager'].includes(mockUser.role) ? <MultiStoreAnalytics /> : <Dashboard />;
-      case 'advanced-analytics':
-        return <AdvancedAnalytics />;
-      case 'financial-analytics':
-        return <FinancialAnalytics />;
-      case 'cost-management':
-        return <CostManagement />;
-      case 'customer-feedback':
-        return <CustomerFeedback />;
-      case 'review-management':
-        return <ReviewManagement />;
-      case 'stores':
-        return ['admin', 'manager'].includes(mockUser.role) ? <StoreManagement /> : <Dashboard />;
+        return <RoleBasedDashboard currentUser={currentUser} />;
+      case 'billing':
+        return <EnhancedBillingScreen />;
       case 'menu':
         return <MenuManagement />;
       case 'inventory':
         return <InventoryManagement />;
+      case 'reservations':
+        return <ReservationSystem />;
+      case 'online-orders':
+        return <OnlineOrderingSystem />;
       case 'kitchen':
         return <KitchenDisplaySystem />;
-      case 'loyalty':
-        return <CustomerLoyalty />;
       case 'staff':
         return <StaffManagement />;
-      case 'billing':
-        return <EnhancedBillingScreen />;
-      case 'floorplan':
-        return ['admin', 'manager'].includes(mockUser.role) ? <AdminFloorPlanScreen /> : <FloorPlanScreen />;
-      case 'hardware':
-        return <HardwareIntegrationPanel />;
+      case 'analytics':
+        return <AdvancedAnalytics />;
+      case 'multi-store':
+        return isFeatureEnabled('multi-store') ? <MultiStoreAnalytics /> : <Dashboard />;
+      case 'loyalty':
+        return isFeatureEnabled('customer-loyalty') ? <CustomerLoyalty /> : <Dashboard />;
+      case 'ai-recommendations':
+        return isFeatureEnabled('ai-recommendations') ? <AIRecommendationEngine /> : <Dashboard />;
+      case 'floor-plan':
+        return <FloorPlanScreen />;
+      case 'financial-analytics':
+        return isFeatureEnabled('financial-analytics') ? <FinancialAnalytics /> : <Dashboard />;
+      case 'cost-management':
+        return isFeatureEnabled('cost-management') ? <CostManagement /> : <Dashboard />;
+      case 'customer-feedback':
+        return isFeatureEnabled('customer-feedback') ? <CustomerFeedback /> : <Dashboard />;
+      case 'review-management':
+        return isFeatureEnabled('review-management') ? <ReviewManagement /> : <Dashboard />;
+      case 'enterprise-analytics':
+        return isFeatureEnabled('advanced-reporting') ? <EnterpriseAnalyticsDashboard /> : <Dashboard />;
+      case 'system-monitoring':
+        return <SystemMonitoringDashboard />;
+      case 'compliance':
+        return <ComplianceManagement />;
       default:
-        return <RoleBasedDashboard currentUser={mockUser} />;
+        return <Dashboard />;
     }
   };
 
-  const handleQuickBill = () => {
-    setActiveSection('billing');
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 flex w-full">
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        activeSection={activeSection} 
-        setActiveSection={setActiveSection}
-        userRole={mockUser.role}
-      />
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
-        <RoleBasedHeader 
-          toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
-          sidebarOpen={sidebarOpen}
-          currentUser={mockUser}
+    <LanguageProvider>
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          onToggle={toggleSidebar}
+          activeComponent={activeComponent}
+          onComponentChange={setActiveComponent}
         />
-        <main className="flex-1 p-6 overflow-auto">
-          {renderContent()}
-        </main>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header onToggleSidebar={toggleSidebar} />
+          <main className="flex-1 overflow-auto">
+            {renderActiveComponent()}
+          </main>
+        </div>
       </div>
-      
-      {/* Quick Add Button - only show when not on billing or floorplan screen */}
-      {activeSection !== 'billing' && activeSection !== 'floorplan' && (
-        <QuickAddButton onClick={handleQuickBill} />
-      )}
-    </div>
+    </LanguageProvider>
   );
 };
 
