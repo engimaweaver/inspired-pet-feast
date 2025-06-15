@@ -27,11 +27,11 @@ import CustomerFeedback from '../components/CustomerFeedback';
 import ReviewManagement from '../components/ReviewManagement';
 import HardwareIntegrationPanel from '../components/HardwareIntegrationPanel';
 
-// Mock user data - will come from authentication later
+// Mock user data - changed to cashier role
 const mockUser = {
   id: '1',
   name: 'Sarah Chen',
-  role: 'admin' as const, // Change this to 'manager' or 'cashier' to test different views
+  role: 'cashier' as const, // Changed from 'admin' to 'cashier'
   store: 'Downtown Cafe'
 };
 
