@@ -45,7 +45,14 @@ const Index = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleSectionChange = (section: string) => {
+    console.log('Navigating to section:', section);
+    setActiveSection(section);
+  };
+
   const renderActiveSection = () => {
+    console.log('Current active section:', activeSection);
+    
     switch (activeSection) {
       case 'dashboard':
         return <RoleBasedDashboard currentUser={currentUser} />;
@@ -64,6 +71,7 @@ const Index = () => {
       case 'staff':
         return <StaffManagement />;
       case 'analytics':
+        console.log('Rendering AdvancedAnalytics component');
         return <AdvancedAnalytics />;
       case 'multi-store':
         return isFeatureEnabled('multi-store') ? <MultiStoreAnalytics /> : <Dashboard />;
@@ -88,6 +96,7 @@ const Index = () => {
       case 'compliance':
         return <ComplianceManagement />;
       default:
+        console.log('Unknown section, rendering Dashboard');
         return <Dashboard />;
     }
   };
@@ -98,7 +107,7 @@ const Index = () => {
         <Sidebar
           isOpen={sidebarOpen}
           activeSection={activeSection}
-          setActiveSection={setActiveSection}
+          setActiveSection={handleSectionChange}
           userRole={currentUser.role}
         />
         
