@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import { useUser } from '@/contexts/UserContext';
 import Sidebar from '@/components/Sidebar';
 import RoleBasedHeader from '@/components/RoleBasedHeader';
 import Dashboard from '@/components/Dashboard';
@@ -32,11 +31,12 @@ const Index = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { toast } = useToast();
   const { isFeatureEnabled } = usePremiumFeatures();
+  const { user } = useUser();
 
-  // Mock user for role-based dashboard
-  const currentUser = {
+  // Use the actual user from context instead of mock data
+  const currentUser = user || {
     id: 'user-1',
-    name: 'Admin User',
+    name: 'Demo User',
     role: 'admin' as const,
     store: 'all'
   };
@@ -97,30 +97,28 @@ const Index = () => {
   };
 
   return (
-    <LanguageProvider>
-      <div className="flex h-screen bg-gray-50">
-        <Sidebar
-          isOpen={sidebarOpen}
-          activeSection={activeSection}
-          setActiveSection={handleSectionChange}
-          userRole={currentUser.role}
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar
+        isOpen={sidebarOpen}
+        activeSection={activeSection}
+        setActiveSection={handleSectionChange}
+        userRole={currentUser.role}
+      />
+      
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
+        sidebarOpen ? 'ml-64' : 'ml-16'
+      }`}>
+        <RoleBasedHeader 
+          toggleSidebar={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+          currentUser={currentUser}
         />
         
-        <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
-          sidebarOpen ? 'ml-64' : 'ml-16'
-        }`}>
-          <RoleBasedHeader 
-            toggleSidebar={toggleSidebar}
-            sidebarOpen={sidebarOpen}
-            currentUser={currentUser}
-          />
-          
-          <main className="flex-1 overflow-auto p-6">
-            {renderActiveSection()}
-          </main>
-        </div>
+        <main className="flex-1 overflow-auto p-6">
+          {renderActiveSection()}
+        </main>
       </div>
-    </LanguageProvider>
+    </div>
   );
 };
 
