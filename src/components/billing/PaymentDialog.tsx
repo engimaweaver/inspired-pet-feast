@@ -7,35 +7,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { formatIndianCurrency } from '@/utils/gstUtils';
+import { PaymentMethod } from '@/types/unified-billing';
 
 interface PaymentDialogProps {
   isOpen: boolean;
   onClose: () => void;
   grandTotal: number;
+  gstAmount: number;
   onPaymentComplete: () => void;
 }
 
-const PaymentDialog = ({ isOpen, onClose, grandTotal, onPaymentComplete }: PaymentDialogProps) => {
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi' | 'paytm' | 'phonepe' | 'googlepay'>('cash');
+const PaymentDialog = ({ isOpen, onClose, grandTotal, gstAmount, onPaymentComplete }: PaymentDialogProps) => {
+  const [paymentMethod, setPaymentMethod] = useState<string>('cash');
   const [amountReceived, setAmountReceived] = useState('');
   const { toast } = useToast();
 
-  const formatIndianCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const paymentMethods = [
-    { id: 'cash', name: 'Cash / नकद', icon: '💰' },
-    { id: 'card', name: 'Card / कार्ड', icon: '💳' },
-    { id: 'upi', name: 'UPI', icon: '📱' },
-    { id: 'paytm', name: 'Paytm', icon: '📱' },
-    { id: 'phonepe', name: 'PhonePe', icon: '📱' },
-    { id: 'googlepay', name: 'Google Pay', icon: '📱' },
+  const paymentMethods: PaymentMethod[] = [
+    { id: 'cash', name: 'Cash', nameHindi: 'नकद', icon: '💰', color: 'bg-green-500', requiresAmount: true },
+    { id: 'card', name: 'Card', nameHindi: 'कार्ड', icon: '💳', color: 'bg-blue-500' },
+    { id: 'upi', name: 'UPI', nameHindi: 'यूपीआई', icon: '📱', color: 'bg-purple-500', showQR: true },
+    { id: 'paytm', name: 'Paytm', nameHindi: 'पेटीएम', icon: '📱', color: 'bg-blue-600', showQR: true },
+    { id: 'phonepe', name: 'PhonePe', nameHindi: 'फोनपे', icon: '📱', color: 'bg-purple-600', showQR: true },
+    { id: 'googlepay', name: 'Google Pay', nameHindi: 'गूगल पे', icon: '📱', color: 'bg-red-500', showQR: true },
   ];
+
+  const selectedMethod = paymentMethods.find(method => method.id === paymentMethod);
 
   const handlePayment = () => {
     if (paymentMethod === 'cash' && !amountReceived) {
@@ -58,7 +55,7 @@ const PaymentDialog = ({ isOpen, onClose, grandTotal, onPaymentComplete }: Payme
 
     toast({
       title: "भुगतान सफल / Payment Successful",
-      description: `${paymentMethod} के माध्यम से ऑर्डर संसाधित / Order processed via ${paymentMethod}`,
+      description: `${selectedMethod?.name} के माध्यम से ऑर्डर संसाधित / Order processed via ${selectedMethod?.name}`,
     });
     
     onPaymentComplete();
@@ -79,26 +76,26 @@ const PaymentDialog = ({ isOpen, onClose, grandTotal, onPaymentComplete }: Payme
                 <Button
                   key={method.id}
                   variant={paymentMethod === method.id ? "default" : "outline"}
-                  onClick={() => setPaymentMethod(method.id as any)}
+                  onClick={() => setPaymentMethod(method.id)}
                   className="h-16 flex flex-col gap-1"
                 >
                   <span className="text-2xl">{method.icon}</span>
-                  <span className="text-xs">{method.name}</span>
+                  <span className="text-xs">{method.name} / {method.nameHindi}</span>
                 </Button>
               ))}
             </div>
           </div>
           
           {/* UPI QR Code Display */}
-          {['upi', 'paytm', 'phonepe', 'googlepay'].includes(paymentMethod) && (
+          {selectedMethod?.showQR && (
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="p-4 text-center">
                 <QrCode className="h-24 w-24 mx-auto mb-2" />
                 <p className="text-sm text-blue-800">
-                  {paymentMethod.toUpperCase()} से QR कोड स्कैन करें
+                  {selectedMethod.name} से QR कोड स्कैन करें
                 </p>
                 <p className="text-xs text-gray-600">
-                  Scan QR code with {paymentMethod.toUpperCase()} app
+                  Scan QR code with {selectedMethod.name} app
                 </p>
               </CardContent>
             </Card>
@@ -122,7 +119,11 @@ const PaymentDialog = ({ isOpen, onClose, grandTotal, onPaymentComplete }: Payme
             </div>
           )}
           
-          <div className="bg-gray-50 p-3 rounded">
+          <div className="bg-gray-50 p-3 rounded space-y-1">
+            <div className="flex justify-between text-sm">
+              <span>कुल जीएसटी / Total GST:</span>
+              <span>{formatIndianCurrency(gstAmount)}</span>
+            </div>
             <div className="flex justify-between font-bold">
               <span>कुल राशि / Total Amount:</span>
               <span>{formatIndianCurrency(grandTotal)}</span>

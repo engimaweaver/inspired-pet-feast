@@ -3,17 +3,12 @@ import { Plus, Minus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-interface OrderItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  category: string;
-}
+import { UnifiedOrderItem } from '@/types/unified-billing';
+import { useBillingCalculations } from '@/hooks/useBillingCalculations';
+import { formatIndianCurrency } from '@/utils/gstUtils';
 
 interface OrderSummaryProps {
-  orderItems: OrderItem[];
+  orderItems: UnifiedOrderItem[];
   onUpdateQuantity: (id: string, change: number) => void;
   onRemoveItem: (id: string) => void;
   onClearOrder: () => void;
@@ -29,24 +24,14 @@ const OrderSummary = ({
   onProcessPayment,
   onPrintBill
 }: OrderSummaryProps) => {
-  const formatIndianCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  const billSummary = useBillingCalculations(orderItems);
 
-  const calculateTotal = () => {
-    return orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const calculateGST = () => {
-    return Math.round(calculateTotal() * 0.18); // 18% GST for restaurants
-  };
-
-  const calculateGrandTotal = () => {
-    return calculateTotal() + calculateGST();
+  const calculateItemTotal = (item: UnifiedOrderItem) => {
+    const baseTotal = item.price * item.quantity;
+    if (!item.discount) return baseTotal;
+    
+    const discountAmount = item.discount > 1 ? item.discount : (baseTotal * item.discount / 100);
+    return Math.max(0, baseTotal - discountAmount);
   };
 
   return (
@@ -102,8 +87,15 @@ const OrderSummary = ({
                           </Button>
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell>{formatIndianCurrency(item.price * item.quantity)}</TableCell>
+                      <TableCell>
+                        <div className="font-medium">{item.name}</div>
+                        {item.discount && (
+                          <div className="text-xs text-green-600">
+                            Discount: {item.discount > 1 ? formatIndianCurrency(item.discount) : item.discount + '%'}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>{formatIndianCurrency(calculateItemTotal(item))}</TableCell>
                       <TableCell>
                         <Button
                           size="sm"
@@ -123,15 +115,31 @@ const OrderSummary = ({
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between">
                 <span>उप-योग / Subtotal:</span>
-                <span>{formatIndianCurrency(calculateTotal())}</span>
+                <span>{formatIndianCurrency(billSummary.subtotal)}</span>
+              </div>
+              {billSummary.totalDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>छूट / Discount:</span>
+                  <span>-{formatIndianCurrency(billSummary.totalDiscount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span>सीजीएसटी / CGST:</span>
+                <span>{formatIndianCurrency(billSummary.gstBreakdown.cgst)}</span>
               </div>
               <div className="flex justify-between">
-                <span>जीएसटी / GST (18%):</span>
-                <span>{formatIndianCurrency(calculateGST())}</span>
+                <span>एसजीएसटी / SGST:</span>
+                <span>{formatIndianCurrency(billSummary.gstBreakdown.sgst)}</span>
               </div>
+              {billSummary.gstBreakdown.igst > 0 && (
+                <div className="flex justify-between">
+                  <span>आईजीएसटी / IGST:</span>
+                  <span>{formatIndianCurrency(billSummary.gstBreakdown.igst)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>कुल / Total:</span>
-                <span>{formatIndianCurrency(calculateGrandTotal())}</span>
+                <span>{formatIndianCurrency(billSummary.grandTotal)}</span>
               </div>
             </div>
 

@@ -9,6 +9,10 @@ import CategoryFilter from './billing/CategoryFilter';
 import SearchAndControls from './billing/SearchAndControls';
 import OrderSummary from './billing/OrderSummary';
 import PaymentDialog from './billing/PaymentDialog';
+import { UnifiedOrderItem } from '@/types/unified-billing';
+import { MenuItem } from '@/types/billing';
+import { useBillingCalculations } from '@/hooks/useBillingCalculations';
+import { SAMPLE_MENU_ITEMS_INR } from '@/constants/indiaData';
 
 interface OrderItem {
   id: string;
@@ -27,25 +31,23 @@ interface MenuItem {
 }
 
 const BillingScreen = () => {
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [orderItems, setOrderItems] = useState<UnifiedOrderItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [quickAddModalOpen, setQuickAddModalOpen] = useState(false);
   const [interfaceMode, setInterfaceMode] = useState<'desktop' | 'touch'>('desktop');
   const { toast } = useToast();
 
-  // Sample menu items
-  const menuItems: MenuItem[] = [
-    { id: '1', name: 'Butter Chicken', price: 320, category: 'Main Course', available: true },
-    { id: '2', name: 'Dal Makhani', price: 180, category: 'Main Course', available: true },
-    { id: '3', name: 'Chicken Biryani', price: 380, category: 'Rice', available: true },
-    { id: '4', name: 'Paneer Tikka', price: 280, category: 'Starter', available: true },
-    { id: '5', name: 'Garlic Naan', price: 80, category: 'Bread', available: true },
-    { id: '6', name: 'Masala Chai', price: 40, category: 'Beverages', available: true },
-  ];
+  // Convert sample menu items to proper format
+  const menuItems: MenuItem[] = SAMPLE_MENU_ITEMS_INR.map(item => ({
+    ...item,
+    available: true
+  }));
 
   const categories = ['All', 'Starter', 'Main Course', 'Rice', 'Bread', 'Beverages'];
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const billSummary = useBillingCalculations(orderItems);
 
   const filteredMenuItems = menuItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -62,12 +64,14 @@ const BillingScreen = () => {
           : item
       ));
     } else {
+      const menuItemWithHSN = SAMPLE_MENU_ITEMS_INR.find(sample => sample.id === menuItem.id);
       setOrderItems([...orderItems, {
         id: menuItem.id,
         name: menuItem.name,
         price: menuItem.price,
         quantity: 1,
-        category: menuItem.category
+        category: menuItem.category,
+        hsnCode: menuItemWithHSN?.hsnCode
       }]);
     }
     toast({
@@ -86,22 +90,19 @@ const BillingScreen = () => {
         return { ...item, quantity: newQuantity };
       }
       return item;
-    }).filter(Boolean) as OrderItem[]);
+    }).filter(Boolean) as UnifiedOrderItem[]);
   };
 
   const removeItem = (id: string) => {
     setOrderItems(orderItems.filter(item => item.id !== id));
   };
 
-  const calculateGrandTotal = () => {
-    const total = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const gst = Math.round(total * 0.18); // Changed from tax to GST
-    return total + gst;
-  };
-
-  const handlePaymentComplete = () => {
-    setPaymentDialogOpen(false);
+  const clearOrder = () => {
     setOrderItems([]);
+    toast({
+      title: "Order Cleared",
+      description: "All items removed from order",
+    });
   };
 
   const printBill = () => {
@@ -122,20 +123,9 @@ const BillingScreen = () => {
     window.print();
   };
 
-  const clearOrder = () => {
+  const handlePaymentComplete = () => {
+    setPaymentDialogOpen(false);
     setOrderItems([]);
-    toast({
-      title: "Order Cleared",
-      description: "All items removed from order",
-    });
-  };
-
-  const formatIndianCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   if (interfaceMode === 'touch') {
@@ -211,7 +201,8 @@ const BillingScreen = () => {
       <PaymentDialog
         isOpen={paymentDialogOpen}
         onClose={() => setPaymentDialogOpen(false)}
-        grandTotal={calculateGrandTotal()}
+        grandTotal={billSummary.grandTotal}
+        gstAmount={billSummary.gstBreakdown.total}
         onPaymentComplete={handlePaymentComplete}
       />
 
