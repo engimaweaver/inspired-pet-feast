@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Monitor, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -118,10 +119,19 @@ const BillingContent = () => {
     }).format(amount);
   };
 
+  const calculateSubtotal = () => {
+    return orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const calculateGSTAmount = () => {
+    const subtotal = calculateSubtotal();
+    return Math.round(subtotal * 0.18);
+  };
+
   const calculateGrandTotal = () => {
-    const total = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const gst = Math.round(total * 0.18); // Changed from tax to GST
-    return total + gst;
+    const subtotal = calculateSubtotal();
+    const gst = calculateGSTAmount();
+    return subtotal + gst;
   };
 
   const handlePaymentComplete = () => {
@@ -235,6 +245,7 @@ const BillingContent = () => {
         isOpen={paymentDialogOpen}
         onClose={() => setPaymentDialogOpen(false)}
         grandTotal={calculateGrandTotal()}
+        gstAmount={calculateGSTAmount()}
         onPaymentComplete={handlePaymentComplete}
       />
 
