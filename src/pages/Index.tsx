@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import AppDock from '@/components/AppDock';
 import AppWindow from '@/components/AppWindow';
-import iPadHeader from '@/components/iPadHeader';
+import IPadHeader from '@/components/iPadHeader';
 import Dashboard from '@/components/Dashboard';
 import EnhancedBillingScreen from '@/components/EnhancedBillingScreen';
 import MenuManagement from '@/components/MenuManagement';
@@ -126,7 +126,7 @@ const Index = () => {
           `
         }}
       >
-        <iPadHeader />
+        <IPadHeader />
         
         <main className="pt-16 pb-24">
           <AppWindow title={getAppTitle(activeApp)}>
