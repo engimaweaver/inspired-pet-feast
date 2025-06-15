@@ -26,6 +26,7 @@ import CostManagement from '../components/CostManagement';
 import CustomerFeedback from '../components/CustomerFeedback';
 import ReviewManagement from '../components/ReviewManagement';
 import HardwareIntegrationPanel from '../components/HardwareIntegrationPanel';
+import EnhancedBillingScreen from '../components/EnhancedBillingScreen';
 
 // Mock user data - changed to cashier role
 const mockUser = {
@@ -50,7 +51,7 @@ const Index = () => {
       case 'online-ordering':
         return <EnhancedOnlineOrdering />;
       case 'analytics':
-        return mockUser.role === 'admin' ? <MultiStoreAnalytics /> : <Dashboard />;
+        return mockUser.role === 'admin' || mockUser.role === 'manager' ? <MultiStoreAnalytics /> : <Dashboard />;
       case 'advanced-analytics':
         return <AdvancedAnalytics />;
       case 'financial-analytics':
@@ -62,7 +63,7 @@ const Index = () => {
       case 'review-management':
         return <ReviewManagement />;
       case 'stores':
-        return mockUser.role === 'admin' ? <StoreManagement /> : <Dashboard />;
+        return mockUser.role === 'admin' || mockUser.role === 'manager' ? <StoreManagement /> : <Dashboard />;
       case 'menu':
         return <MenuManagement />;
       case 'inventory':
@@ -74,9 +75,9 @@ const Index = () => {
       case 'staff':
         return <StaffManagement />;
       case 'billing':
-        return <BillingScreen />;
+        return <EnhancedBillingScreen />;
       case 'floorplan':
-        return mockUser.role === 'admin' ? <AdminFloorPlanScreen /> : <FloorPlanScreen />;
+        return mockUser.role === 'admin' || mockUser.role === 'manager' ? <AdminFloorPlanScreen /> : <FloorPlanScreen />;
       case 'hardware':
         return <HardwareIntegrationPanel />;
       default:
