@@ -62,8 +62,8 @@ class PerformanceMonitoringService {
   private handleNavigationEntry(entry: PerformanceNavigationTiming): void {
     const pageLoad: PageLoadMetric = {
       url: window.location.href,
-      loadTime: entry.loadEventEnd - entry.navigationStart,
-      domContentLoaded: entry.domContentLoadedEventEnd - entry.navigationStart,
+      loadTime: entry.loadEventEnd - entry.startTime,
+      domContentLoaded: entry.domContentLoadedEventEnd - entry.startTime,
       timestamp: Date.now()
     };
 
