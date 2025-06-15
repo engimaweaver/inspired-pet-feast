@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import Header from '../components/Header';
 import RoleBasedHeader from '../components/RoleBasedHeader';
@@ -51,7 +52,7 @@ const Index = () => {
       case 'online-ordering':
         return <EnhancedOnlineOrdering />;
       case 'analytics':
-        return mockUser.role === 'admin' || mockUser.role === 'manager' ? <MultiStoreAnalytics /> : <Dashboard />;
+        return ['admin', 'manager'].includes(mockUser.role) ? <MultiStoreAnalytics /> : <Dashboard />;
       case 'advanced-analytics':
         return <AdvancedAnalytics />;
       case 'financial-analytics':
@@ -63,7 +64,7 @@ const Index = () => {
       case 'review-management':
         return <ReviewManagement />;
       case 'stores':
-        return mockUser.role === 'admin' || mockUser.role === 'manager' ? <StoreManagement /> : <Dashboard />;
+        return ['admin', 'manager'].includes(mockUser.role) ? <StoreManagement /> : <Dashboard />;
       case 'menu':
         return <MenuManagement />;
       case 'inventory':
@@ -77,7 +78,7 @@ const Index = () => {
       case 'billing':
         return <EnhancedBillingScreen />;
       case 'floorplan':
-        return mockUser.role === 'admin' || mockUser.role === 'manager' ? <AdminFloorPlanScreen /> : <FloorPlanScreen />;
+        return ['admin', 'manager'].includes(mockUser.role) ? <AdminFloorPlanScreen /> : <FloorPlanScreen />;
       case 'hardware':
         return <HardwareIntegrationPanel />;
       default:
