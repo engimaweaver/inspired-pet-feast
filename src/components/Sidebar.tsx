@@ -13,14 +13,10 @@ const Sidebar = ({ isOpen, activeSection, setActiveSection, userRole }: SidebarP
   const [upgradeFeatureId, setUpgradeFeatureId] = useState<string | undefined>();
 
   const handleMenuClick = (item: MenuItem) => {
-    console.log('Menu item clicked:', item.id, item.label);
-    
     if (item.premium && !isFeatureEnabled(item.premium)) {
-      console.log('Premium feature clicked, showing upgrade modal');
       setUpgradeFeatureId(item.premium);
       setShowUpgradeModal(true);
     } else {
-      console.log('Navigating to section:', item.id);
       setActiveSection(item.id);
     }
   };

@@ -9,6 +9,7 @@ interface ChartWrapperProps {
   children: React.ReactElement;
   height?: number;
   className?: string;
+  headerAction?: React.ReactNode;
 }
 
 const ChartWrapper = ({ 
@@ -16,13 +17,17 @@ const ChartWrapper = ({
   description, 
   children, 
   height = 300,
-  className 
+  className,
+  headerAction
 }: ChartWrapperProps) => {
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
+      <CardHeader className={headerAction ? "flex flex-row items-center justify-between" : ""}>
+        <div>
+          <CardTitle>{title}</CardTitle>
+          {description && <CardDescription>{description}</CardDescription>}
+        </div>
+        {headerAction}
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={height}>

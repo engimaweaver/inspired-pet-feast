@@ -3,25 +3,15 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'rec
 import OrdersTable from './OrdersTable';
 import MetricsDashboard from './shared/MetricsDashboard';
 import ChartWrapper from './shared/ChartWrapper';
-
-const weeklyData = [
-  { day: 'Mon', orders: 45, revenue: 2400 },
-  { day: 'Tue', orders: 52, revenue: 2800 },
-  { day: 'Wed', orders: 38, revenue: 2200 },
-  { day: 'Thu', orders: 61, revenue: 3200 },
-  { day: 'Fri', orders: 78, revenue: 4100 },
-  { day: 'Sat', orders: 89, revenue: 4800 },
-  { day: 'Sun', orders: 67, revenue: 3600 },
-];
+import { DASHBOARD_METRICS, WEEKLY_CHART_DATA } from '@/constants/dashboardData';
+import { 
+  getDefaultCartesianGrid, 
+  getDefaultAxis, 
+  getBarChartConfig, 
+  getLineChartConfig 
+} from '@/utils/chartUtils';
 
 const Dashboard = () => {
-  const metricsData = {
-    revenue: { value: "$4,280", change: "+12.5%", trend: 'up' as const },
-    orders: { value: "89", change: "+8.2%", trend: 'up' as const },
-    customers: { value: "24/32", change: "75% occupied", trend: 'neutral' as const },
-    rating: { value: "4.8", change: "+0.2 this week", trend: 'up' as const }
-  };
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -35,30 +25,24 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <MetricsDashboard data={metricsData} />
+      <MetricsDashboard data={DASHBOARD_METRICS} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartWrapper title="Weekly Orders">
-          <BarChart data={weeklyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="day" stroke="#6b7280" />
-            <YAxis stroke="#6b7280" />
-            <Bar dataKey="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+          <BarChart data={WEEKLY_CHART_DATA}>
+            <CartesianGrid {...getDefaultCartesianGrid()} />
+            <XAxis dataKey="day" {...getDefaultAxis()} />
+            <YAxis {...getDefaultAxis()} />
+            <Bar {...getBarChartConfig('orders')} />
           </BarChart>
         </ChartWrapper>
 
         <ChartWrapper title="Revenue Trend">
-          <LineChart data={weeklyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="day" stroke="#6b7280" />
-            <YAxis stroke="#6b7280" />
-            <Line 
-              type="monotone" 
-              dataKey="revenue" 
-              stroke="#10b981" 
-              strokeWidth={3}
-              dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-            />
+          <LineChart data={WEEKLY_CHART_DATA}>
+            <CartesianGrid {...getDefaultCartesianGrid()} />
+            <XAxis dataKey="day" {...getDefaultAxis()} />
+            <YAxis {...getDefaultAxis()} />
+            <Line {...getLineChartConfig('revenue')} />
           </LineChart>
         </ChartWrapper>
       </div>
