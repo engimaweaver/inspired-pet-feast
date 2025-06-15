@@ -2,9 +2,8 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LanguageProvider } from '@/contexts/LanguageContext';
-import AppDock from '@/components/AppDock';
-import AppWindow from '@/components/AppWindow';
-import IPadHeader from '@/components/iPadHeader';
+import Sidebar from '@/components/Sidebar';
+import RoleBasedHeader from '@/components/RoleBasedHeader';
 import Dashboard from '@/components/Dashboard';
 import EnhancedBillingScreen from '@/components/EnhancedBillingScreen';
 import MenuManagement from '@/components/MenuManagement';
@@ -29,7 +28,8 @@ import RoleBasedDashboard from '@/components/RoleBasedDashboard';
 import { usePremiumFeatures } from '@/hooks/usePremiumFeatures';
 
 const Index = () => {
-  const [activeApp, setActiveApp] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { toast } = useToast();
   const { isFeatureEnabled } = usePremiumFeatures();
 
@@ -41,34 +41,12 @@ const Index = () => {
     store: 'all'
   };
 
-  const getAppTitle = (appId: string): string => {
-    const titles: Record<string, string> = {
-      'dashboard': 'Dashboard',
-      'billing': 'Billing & POS',
-      'menu': 'Menu Management',
-      'inventory': 'Inventory',
-      'reservations': 'Reservations',
-      'online-orders': 'Online Orders',
-      'kitchen': 'Kitchen Display',
-      'staff': 'Staff Management',
-      'analytics': 'Analytics',
-      'multi-store': 'Multi-Store Analytics',
-      'loyalty': 'Customer Loyalty',
-      'ai-recommendations': 'AI Recommendations',
-      'floor-plan': 'Floor Plan',
-      'financial-analytics': 'Financial Analytics',
-      'cost-management': 'Cost Management',
-      'customer-feedback': 'Customer Feedback',
-      'review-management': 'Review Management',
-      'enterprise-analytics': 'Enterprise Analytics',
-      'system-monitoring': 'System Monitoring',
-      'compliance': 'Compliance Management'
-    };
-    return titles[appId] || 'RestaurantOS';
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
-  const renderActiveApp = () => {
-    switch (activeApp) {
+  const renderActiveSection = () => {
+    switch (activeSection) {
       case 'dashboard':
         return <RoleBasedDashboard currentUser={currentUser} />;
       case 'billing':
@@ -116,28 +94,27 @@ const Index = () => {
 
   return (
     <LanguageProvider>
-      <div 
-        className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(120, 198, 198, 0.2) 0%, transparent 50%)
-          `
-        }}
-      >
-        <IPadHeader />
-        
-        <main className="pt-16 pb-24">
-          <AppWindow title={getAppTitle(activeApp)}>
-            {renderActiveApp()}
-          </AppWindow>
-        </main>
-        
-        <AppDock 
-          onAppSelect={setActiveApp}
-          activeApp={activeApp}
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar
+          isOpen={sidebarOpen}
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          userRole={currentUser.role}
         />
+        
+        <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
+          sidebarOpen ? 'ml-64' : 'ml-16'
+        }`}>
+          <RoleBasedHeader 
+            toggleSidebar={toggleSidebar}
+            sidebarOpen={sidebarOpen}
+            currentUser={currentUser}
+          />
+          
+          <main className="flex-1 overflow-auto p-6">
+            {renderActiveSection()}
+          </main>
+        </div>
       </div>
     </LanguageProvider>
   );
