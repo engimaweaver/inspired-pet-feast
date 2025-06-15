@@ -1,15 +1,15 @@
 
 import { useState } from 'react';
-import { Plus, Minus, Trash2, CreditCard, Printer, Barcode, Search, Zap, Monitor, Smartphone } from 'lucide-react';
+import { Monitor, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import QuickAddModal from './QuickAddModal';
 import TouchBillingScreen from './TouchBillingScreen';
+import MenuItemCard from './billing/MenuItemCard';
+import CategoryFilter from './billing/CategoryFilter';
+import SearchAndControls from './billing/SearchAndControls';
+import OrderSummary from './billing/OrderSummary';
+import PaymentDialog from './billing/PaymentDialog';
 
 interface OrderItem {
   id: string;
@@ -30,11 +30,8 @@ interface MenuItem {
 const BillingScreen = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [barcodeInput, setBarcodeInput] = useState('');
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [quickAddModalOpen, setQuickAddModalOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi'>('cash');
-  const [amountReceived, setAmountReceived] = useState('');
   const [interfaceMode, setInterfaceMode] = useState<'desktop' | 'touch'>('desktop');
   const { toast } = useToast();
 
@@ -97,68 +94,15 @@ const BillingScreen = () => {
     setOrderItems(orderItems.filter(item => item.id !== id));
   };
 
-  const handleBarcodeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!barcodeInput.trim()) return;
-    
-    // Simulate barcode lookup
-    const foundItem = menuItems.find(item => item.id === barcodeInput);
-    if (foundItem) {
-      addToOrder(foundItem);
-      setBarcodeInput('');
-      toast({
-        title: "Item Found",
-        description: `${foundItem.name} added via barcode scan`,
-      });
-    } else {
-      toast({
-        title: "Item Not Found",
-        description: "Barcode not recognized",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const calculateTotal = () => {
-    return orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const calculateTax = () => {
-    return Math.round(calculateTotal() * 0.18); // 18% GST
-  };
-
   const calculateGrandTotal = () => {
-    return calculateTotal() + calculateTax();
+    const total = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const tax = Math.round(total * 0.18);
+    return total + tax;
   };
 
-  const handlePayment = () => {
-    if (orderItems.length === 0) {
-      toast({
-        title: "No Items",
-        description: "Please add items to the order first",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (paymentMethod === 'cash' && !amountReceived) {
-      toast({
-        title: "Amount Required",
-        description: "Please enter the amount received",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Process payment logic here
-    toast({
-      title: "Payment Successful",
-      description: `Order processed via ${paymentMethod}`,
-    });
-    
+  const handlePaymentComplete = () => {
     setPaymentDialogOpen(false);
     setOrderItems([]);
-    setAmountReceived('');
   };
 
   const printBill = () => {
@@ -171,13 +115,11 @@ const BillingScreen = () => {
       return;
     }
 
-    // Simulate bill printing
     toast({
       title: "Printing Bill",
       description: "Bill sent to printer",
     });
     
-    // In a real application, this would integrate with a thermal printer
     window.print();
   };
 
@@ -209,253 +151,63 @@ const BillingScreen = () => {
   }
 
   return (
-    <div className="h-full">
-      <div className="flex justify-between items-center p-4 bg-white border-b">
-        <h1 className="text-xl font-bold">Desktop Billing Interface</h1>
-        <Button
-          variant="outline"
-          onClick={() => setInterfaceMode('touch')}
-          className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-        >
-          <Smartphone className="h-4 w-4" />
-          Switch to Touch Interface
-        </Button>
-      </div>
-      
-      {/* Left Panel - Menu Items */}
-      <div className="flex-1 space-y-4">
-        {/* Search, Barcode, and Quick Add */}
-        <div className="flex gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search menu items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <form onSubmit={handleBarcodeSubmit} className="flex gap-2">
-            <Input
-              placeholder="Scan barcode..."
-              value={barcodeInput}
-              onChange={(e) => setBarcodeInput(e.target.value)}
-              className="w-40"
-            />
-            <Button type="submit" variant="outline">
-              <Barcode className="h-4 w-4" />
-            </Button>
-          </form>
+    <div className="h-full flex">
+      <div className="flex-1 p-4 space-y-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl font-bold">Desktop Billing Interface</h1>
           <Button
-            onClick={() => setQuickAddModalOpen(true)}
             variant="outline"
-            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+            onClick={() => setInterfaceMode('touch')}
+            className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
           >
-            <Zap className="h-4 w-4 mr-2" />
-            Quick Add
+            <Smartphone className="h-4 w-4" />
+            Switch to Touch Interface
           </Button>
         </div>
 
-        {/* Category Filters */}
-        <div className="flex gap-2 flex-wrap">
-          {categories.map(category => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
+        <SearchAndControls
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          menuItems={menuItems}
+          onAddToOrder={addToOrder}
+          onQuickAddClick={() => setQuickAddModalOpen(true)}
+        />
 
-        {/* Menu Items Grid */}
+        <CategoryFilter
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
           {filteredMenuItems.map(item => (
-            <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-sm text-gray-600">{item.category}</p>
-                  </div>
-                  <span className="font-bold text-green-600">₹{item.price}</span>
-                </div>
-                <Button 
-                  onClick={() => addToOrder(item)}
-                  className="w-full"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add to Order
-                </Button>
-              </CardContent>
-            </Card>
+            <MenuItemCard
+              key={item.id}
+              item={item}
+              onAddToOrder={addToOrder}
+            />
           ))}
         </div>
       </div>
 
-      {/* Right Panel - Order Summary */}
-      <div className="w-96 space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex justify-between items-center">
-              Current Order
-              {orderItems.length > 0 && (
-                <Button variant="outline" size="sm" onClick={clearOrder}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {orderItems.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No items in order</p>
-            ) : (
-              <div className="space-y-4">
-                <div className="max-h-60 overflow-y-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-20">Qty</TableHead>
-                        <TableHead>Item</TableHead>
-                        <TableHead className="w-20">Price</TableHead>
-                        <TableHead className="w-10"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {orderItems.map(item => (
-                        <TableRow key={item.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => updateQuantity(item.id, -1)}
-                                className="h-6 w-6 p-0"
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-8 text-center">{item.quantity}</span>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => updateQuantity(item.id, 1)}
-                                className="h-6 w-6 p-0"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium">{item.name}</TableCell>
-                          <TableCell>₹{item.price * item.quantity}</TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => removeItem(item.id)}
-                              className="h-6 w-6 p-0 text-red-500"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Order Summary */}
-                <div className="border-t pt-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span>₹{calculateTotal()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax (18%):</span>
-                    <span>₹{calculateTax()}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-lg border-t pt-2">
-                    <span>Total:</span>
-                    <span>₹{calculateGrandTotal()}</span>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="space-y-2">
-                  <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button className="w-full" size="lg">
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        Process Payment
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Process Payment</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label>Payment Method</Label>
-                          <div className="flex gap-2 mt-2">
-                            {['cash', 'card', 'upi'].map(method => (
-                              <Button
-                                key={method}
-                                variant={paymentMethod === method ? "default" : "outline"}
-                                onClick={() => setPaymentMethod(method as any)}
-                                className="capitalize"
-                              >
-                                {method}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {paymentMethod === 'cash' && (
-                          <div>
-                            <Label htmlFor="amount">Amount Received</Label>
-                            <Input
-                              id="amount"
-                              type="number"
-                              value={amountReceived}
-                              onChange={(e) => setAmountReceived(e.target.value)}
-                              placeholder="Enter amount received"
-                            />
-                            {amountReceived && (
-                              <p className="text-sm text-gray-600 mt-1">
-                                Change: ₹{Math.max(0, Number(amountReceived) - calculateGrandTotal())}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                        
-                        <div className="bg-gray-50 p-3 rounded">
-                          <div className="flex justify-between font-bold">
-                            <span>Total Amount:</span>
-                            <span>₹{calculateGrandTotal()}</span>
-                          </div>
-                        </div>
-                        
-                        <Button onClick={handlePayment} className="w-full">
-                          Complete Payment
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Button variant="outline" className="w-full" onClick={printBill}>
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print Bill
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <div className="w-96 p-4">
+        <OrderSummary
+          orderItems={orderItems}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={removeItem}
+          onClearOrder={clearOrder}
+          onProcessPayment={() => setPaymentDialogOpen(true)}
+          onPrintBill={printBill}
+        />
       </div>
 
-      {/* Quick Add Modal */}
+      <PaymentDialog
+        isOpen={paymentDialogOpen}
+        onClose={() => setPaymentDialogOpen(false)}
+        grandTotal={calculateGrandTotal()}
+        onPaymentComplete={handlePaymentComplete}
+      />
+
       <QuickAddModal
         isOpen={quickAddModalOpen}
         onClose={() => setQuickAddModalOpen(false)}
