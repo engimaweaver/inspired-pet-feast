@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Plus, Mail, Phone, MoreHorizontal } from 'lucide-react';
+import DataTable from './shared/DataTable';
 
 const staff = [
   {
@@ -63,6 +64,39 @@ const staff = [
 ];
 
 const StaffManagement = () => {
+  const scheduleColumns = [
+    { 
+      key: 'name', 
+      header: 'Staff Member',
+      render: (value: string, row: any) => (
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+              {row.initials}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-medium text-gray-900">{value}</p>
+            <p className="text-sm text-gray-600">{row.role}</p>
+          </div>
+        </div>
+      )
+    },
+    { 
+      key: 'shift', 
+      header: 'Shift',
+      render: (value: string) => (
+        <div className="text-right">
+          <p className="text-sm font-medium text-gray-900">{value}</p>
+          <p className="text-xs text-gray-500">
+            {value === 'Day Shift' ? '9:00 AM - 5:00 PM' : 
+             value === 'Evening Shift' ? '5:00 PM - 1:00 AM' : '1:00 AM - 9:00 AM'}
+          </p>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -130,33 +164,12 @@ const StaffManagement = () => {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Schedule</h3>
-        <div className="space-y-3">
-          {staff.filter(member => member.status === 'active').map((member) => (
-            <div key={member.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
-                    {member.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium text-gray-900">{member.name}</p>
-                  <p className="text-sm text-gray-600">{member.role}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{member.shift}</p>
-                <p className="text-xs text-gray-500">
-                  {member.shift === 'Day Shift' ? '9:00 AM - 5:00 PM' : 
-                   member.shift === 'Evening Shift' ? '5:00 PM - 1:00 AM' : '1:00 AM - 9:00 AM'}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <DataTable
+        title="Today's Schedule"
+        description="Active staff members and their shifts"
+        columns={scheduleColumns}
+        data={staff.filter(member => member.status === 'active')}
+      />
     </div>
   );
 };

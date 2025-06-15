@@ -1,12 +1,13 @@
-
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, Users, Clock, Star, Calendar, Filter } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import AnalyticsCard from './shared/AnalyticsCard';
+import ChartWrapper from './shared/ChartWrapper';
+import DataTable from './shared/DataTable';
 
 const revenueData = [
   { name: 'Mon', revenue: 4200, orders: 42, customers: 38 },
@@ -59,7 +60,21 @@ const AdvancedAnalytics = () => {
   const totalRevenue = revenueData.reduce((sum, day) => sum + day.revenue, 0);
   const totalOrders = revenueData.reduce((sum, day) => sum + day.orders, 0);
   const averageOrderValue = totalRevenue / totalOrders;
-  const weeklyGrowth = 12.5; // Mock data
+  const weeklyGrowth = 12.5;
+
+  const keyMetrics = [
+    { title: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, change: `+${weeklyGrowth}% from last week`, trend: 'up' as const, icon: DollarSign },
+    { title: 'Total Orders', value: totalOrders.toString(), change: '+8.2% from last week', trend: 'up' as const, icon: Users },
+    { title: 'Avg Order Value', value: `$${averageOrderValue.toFixed(2)}`, change: '+3.1% from last week', trend: 'up' as const, icon: TrendingUp },
+    { title: 'Customer Satisfaction', value: '4.8', change: '+0.2 from last week', trend: 'up' as const, icon: Star }
+  ];
+
+  const menuColumns = [
+    { key: 'name', header: 'Item Name' },
+    { key: 'orders', header: 'Orders' },
+    { key: 'revenue', header: 'Revenue', render: (value: number) => `$${value}` },
+    { key: 'percentage', header: 'Share', render: (value: number) => `${value}%` }
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -94,60 +109,10 @@ const AdvancedAnalytics = () => {
         </div>
       </div>
 
-      {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground flex items-center mt-1">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              +{weeklyGrowth}% from last week
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalOrders}</div>
-            <p className="text-xs text-muted-foreground flex items-center mt-1">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              +8.2% from last week
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Order Value</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${averageOrderValue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground flex items-center mt-1">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              +3.1% from last week
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Customer Satisfaction</CardTitle>
-            <Star className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4.8</div>
-            <p className="text-xs text-muted-foreground flex items-center mt-1">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              +0.2 from last week
-            </p>
-          </CardContent>
-        </Card>
+        {keyMetrics.map((metric, index) => (
+          <AnalyticsCard key={index} {...metric} />
+        ))}
       </div>
 
       <Tabs defaultValue="revenue" className="space-y-6">
@@ -160,240 +125,147 @@ const AdvancedAnalytics = () => {
 
         <TabsContent value="revenue" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Daily Revenue Trend</CardTitle>
-                <CardDescription>Revenue and order volume over the past week</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip formatter={(value, name) => [
-                      name === 'revenue' ? `$${value}` : value,
-                      name === 'revenue' ? 'Revenue' : 'Orders'
-                    ]} />
-                    <Area type="monotone" dataKey="revenue" stackId="1" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <ChartWrapper title="Daily Revenue Trend" description="Revenue and order volume over the past week">
+              <AreaChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip formatter={(value, name) => [
+                  name === 'revenue' ? `$${value}` : value,
+                  name === 'revenue' ? 'Revenue' : 'Orders'
+                ]} />
+                <Area type="monotone" dataKey="revenue" stackId="1" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+              </AreaChart>
+            </ChartWrapper>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Hourly Performance</CardTitle>
-                <CardDescription>Orders and revenue by hour of day</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={hourlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="hour" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Bar yAxisId="right" dataKey="orders" fill="#82ca9d" />
-                    <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <ChartWrapper title="Hourly Performance" description="Orders and revenue by hour of day">
+              <LineChart data={hourlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="hour" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip />
+                <Bar yAxisId="right" dataKey="orders" fill="#82ca9d" />
+                <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
+              </LineChart>
+            </ChartWrapper>
           </div>
         </TabsContent>
 
         <TabsContent value="menu" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Menu Items</CardTitle>
-                <CardDescription>Best performing items by order count and revenue</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {menuItemsData.slice(0, 6).map((item, index) => (
-                    <div key={item.name} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                          {index + 1}
-                        </Badge>
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-gray-500">{item.orders} orders</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">${item.revenue}</p>
-                        <p className="text-sm text-gray-500">{item.percentage}%</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <DataTable
+              title="Top Menu Items"
+              description="Best performing items by order count and revenue"
+              columns={menuColumns}
+              data={menuItemsData.slice(0, 6)}
+            />
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Menu Item Distribution</CardTitle>
-                <CardDescription>Order distribution across menu categories</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={menuItemsData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="orders"
-                    >
-                      {menuItemsData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <ChartWrapper title="Menu Item Distribution" description="Order distribution across menu categories">
+              <PieChart>
+                <Pie
+                  data={menuItemsData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percentage }) => `${name} ${percentage}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="orders"
+                >
+                  {menuItemsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ChartWrapper>
           </div>
         </TabsContent>
 
         <TabsContent value="customers" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Segments</CardTitle>
-                <CardDescription>Breakdown of customer types and growth</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {customerAnalytics.map((segment) => (
-                    <div key={segment.segment} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium">{segment.segment}</h4>
-                        <Badge variant={segment.growth > 0 ? "default" : "destructive"}>
-                          {segment.growth > 0 ? '+' : ''}{segment.growth}%
-                        </Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold">{segment.count}</span>
-                        <span className="text-sm text-gray-500">{segment.percentage}% of total</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Customer Segments</h3>
+              {customerAnalytics.map((segment) => (
+                <AnalyticsCard
+                  key={segment.segment}
+                  title={segment.segment}
+                  value={segment.count}
+                  change={`${segment.percentage}% of total`}
+                  trend={segment.growth > 0 ? 'up' : segment.growth < 0 ? 'down' : 'neutral'}
+                  badge={{ text: `${segment.growth > 0 ? '+' : ''}${segment.growth}%`, variant: segment.growth > 0 ? 'default' : 'destructive' }}
+                />
+              ))}
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Behavior</CardTitle>
-                <CardDescription>Key metrics about customer engagement</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Average Visit Frequency</span>
-                      <span className="text-sm">2.3 times/month</span>
-                    </div>
-                    <div className="bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }} />
-                    </div>
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold">Customer Behavior</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Average Visit Frequency</span>
+                    <span className="text-sm">2.3 times/month</span>
                   </div>
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Customer Retention Rate</span>
-                      <span className="text-sm">68%</span>
-                    </div>
-                    <div className="bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-600 h-2 rounded-full" style={{ width: '68%' }} />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Loyalty Program Adoption</span>
-                      <span className="text-sm">45%</span>
-                    </div>
-                    <div className="bg-gray-200 rounded-full h-2">
-                      <div className="bg-purple-600 h-2 rounded-full" style={{ width: '45%' }} />
-                    </div>
+                  <div className="bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Customer Retention Rate</span>
+                    <span className="text-sm">68%</span>
+                  </div>
+                  <div className="bg-gray-200 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '68%' }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Loyalty Program Adoption</span>
+                    <span className="text-sm">45%</span>
+                  </div>
+                  <div className="bg-gray-200 rounded-full h-2">
+                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: '45%' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="operations" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Service Metrics</CardTitle>
-                <CardDescription>Kitchen and service performance indicators</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-blue-500" />
-                      <span className="font-medium">Average Prep Time</span>
-                    </div>
-                    <span className="text-lg font-bold">18 min</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex items-center space-x-2">
-                      <Users className="h-4 w-4 text-green-500" />
-                      <span className="font-medium">Table Turnover Rate</span>
-                    </div>
-                    <span className="text-lg font-bold">2.4x</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex items-center space-x-2">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      <span className="font-medium">Order Accuracy</span>
-                    </div>
-                    <span className="text-lg font-bold">96%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Service Metrics</h3>
+              <AnalyticsCard title="Average Prep Time" value="18 min" icon={Clock} />
+              <AnalyticsCard title="Table Turnover Rate" value="2.4x" icon={Users} />
+              <AnalyticsCard title="Order Accuracy" value="96%" icon={Star} />
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Peak Hours Analysis</CardTitle>
-                <CardDescription>Busiest times and capacity utilization</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Lunch Rush</h4>
-                    <div className="bg-orange-100 text-orange-800 px-3 py-2 rounded">
-                      12:00 PM - 2:00 PM • 85% capacity
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Dinner Rush</h4>
-                    <div className="bg-red-100 text-red-800 px-3 py-2 rounded">
-                      6:00 PM - 8:00 PM • 95% capacity
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Weekend Peak</h4>
-                    <div className="bg-purple-100 text-purple-800 px-3 py-2 rounded">
-                      Saturday 7:00 PM - 9:00 PM • 100% capacity
-                    </div>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Peak Hours Analysis</h3>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2">Lunch Rush</h4>
+                  <div className="bg-orange-100 text-orange-800 px-3 py-2 rounded">
+                    12:00 PM - 2:00 PM • 85% capacity
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <h4 className="font-medium mb-2">Dinner Rush</h4>
+                  <div className="bg-red-100 text-red-800 px-3 py-2 rounded">
+                    6:00 PM - 8:00 PM • 95% capacity
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Weekend Peak</h4>
+                  <div className="bg-purple-100 text-purple-800 px-3 py-2 rounded">
+                    Saturday 7:00 PM - 9:00 PM • 100% capacity
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </TabsContent>
       </Tabs>

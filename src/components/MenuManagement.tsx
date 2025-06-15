@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, Star } from 'lucide-react';
+import DataTable from './shared/DataTable';
 
 const menuItems = [
   {
